@@ -1,0 +1,445 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "Example API",
+		"version": "1.0.0",
+		"description": "Example schema shipped with the template. Replace it with your backend's schema (`just download-schema` or copy it here) and run `pnpm generate:api`."
+	},
+	"paths": {
+		"/health": {
+			"get": {
+				"operationId": "health",
+				"summary": "Health check",
+				"responses": {
+					"200": {
+						"description": "The API is up",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "string"
+										}
+									},
+									"required": ["status"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/login": {
+			"post": {
+				"operationId": "login",
+				"summary": "Sign in (sets the session cookie)",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Signed in",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			}
+		},
+		"/auth/logout": {
+			"post": {
+				"operationId": "logout",
+				"summary": "Sign out (clears the session cookie)",
+				"responses": {
+					"204": {
+						"description": "Signed out"
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			}
+		},
+		"/auth/me": {
+			"get": {
+				"operationId": "me",
+				"summary": "Current user",
+				"responses": {
+					"200": {
+						"description": "The signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			}
+		},
+		"/items": {
+			"get": {
+				"operationId": "listItems",
+				"summary": "List items (paginated)",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"schema": {
+							"type": ["string", "null"]
+						}
+					},
+					{
+						"name": "order",
+						"in": "query",
+						"schema": {
+							"$ref": "#/components/schemas/ItemOrder"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"schema": {
+							"$ref": "#/components/schemas/ItemStatus"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A page of items",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ItemPage"
+								}
+							}
+						}
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			},
+			"post": {
+				"operationId": "createItem",
+				"summary": "Create an item",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ItemCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Item"
+								}
+							}
+						}
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			}
+		},
+		"/items/{id}": {
+			"parameters": [
+				{
+					"name": "id",
+					"in": "path",
+					"required": true,
+					"schema": {
+						"type": "string"
+					}
+				}
+			],
+			"get": {
+				"operationId": "getItem",
+				"summary": "Get one item",
+				"responses": {
+					"200": {
+						"description": "The item",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Item"
+								}
+							}
+						}
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			},
+			"patch": {
+				"operationId": "updateItem",
+				"summary": "Update an item",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ItemUpdate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Item"
+								}
+							}
+						}
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			},
+			"delete": {
+				"operationId": "deleteItem",
+				"summary": "Delete an item",
+				"responses": {
+					"204": {
+						"description": "Deleted"
+					},
+					"default": {
+						"$ref": "#/components/responses/Error"
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"responses": {
+			"Error": {
+				"description": "Error response",
+				"content": {
+					"application/json": {
+						"schema": {
+							"$ref": "#/components/schemas/Error"
+						}
+					}
+				}
+			}
+		},
+		"schemas": {
+			"Error": {
+				"type": "object",
+				"description": "Error body understood by `AppError.fromResponse`.",
+				"properties": {
+					"detail": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"field_errors": {
+						"type": "object",
+						"additionalProperties": {
+							"oneOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							]
+						}
+					}
+				}
+			},
+			"ItemStatus": {
+				"type": "string",
+				"enum": ["draft", "active", "archived"]
+			},
+			"ItemOrder": {
+				"type": "string",
+				"enum": ["name", "-name", "quantity", "-quantity", "created_at", "-created_at"]
+			},
+			"Item": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": ["string", "null"]
+					},
+					"status": {
+						"$ref": "#/components/schemas/ItemStatus"
+					},
+					"quantity": {
+						"type": "integer"
+					},
+					"created_at": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updated_at": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"description",
+					"status",
+					"quantity",
+					"created_at",
+					"updated_at"
+				]
+			},
+			"ItemCreate": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": ["string", "null"]
+					},
+					"status": {
+						"$ref": "#/components/schemas/ItemStatus"
+					},
+					"quantity": {
+						"type": "integer"
+					}
+				},
+				"required": ["name", "status", "quantity"]
+			},
+			"ItemUpdate": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": ["string", "null"]
+					},
+					"status": {
+						"$ref": "#/components/schemas/ItemStatus"
+					},
+					"quantity": {
+						"type": "integer"
+					}
+				}
+			},
+			"ItemPage": {
+				"type": "object",
+				"properties": {
+					"next": {
+						"type": "boolean"
+					},
+					"previous": {
+						"type": "boolean"
+					},
+					"elements": {
+						"type": "integer"
+					},
+					"current": {
+						"type": "integer"
+					},
+					"pages": {
+						"type": "integer"
+					},
+					"results": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/Item"
+						}
+					}
+				},
+				"required": ["next", "previous", "elements", "current", "pages", "results"]
+			},
+			"LoginRequest": {
+				"type": "object",
+				"properties": {
+					"email": {
+						"type": "string",
+						"format": "email"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": ["email", "password"]
+			},
+			"User": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string",
+						"format": "email"
+					},
+					"name": {
+						"type": "string"
+					},
+					"avatar_url": {
+						"type": ["string", "null"]
+					}
+				},
+				"required": ["id", "email", "name", "avatar_url"]
+			}
+		}
+	}
+}
