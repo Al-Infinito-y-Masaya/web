@@ -25,7 +25,7 @@ Requiere Node 22+ y pnpm 11. **La app no trae datos de demostración**: sin una 
 
 | Ruta        | Qué resuelve                                                                                          |
 | ----------- | ----------------------------------------------------------------------------------------------------- |
-| `/`         | Qué es Mangroove, los dos caminos y el estado real de los datos                                       |
+| `/`         | Intro animada, qué es Mangroove, los dos caminos y el estado real de los datos                        |
 | `/historia` | Relato en cinco actos: cada acto mueve el mapa y activa su capa                                       |
 | `/explorar` | **El ritmo** (pasada, reproducción, comparar A y B), **En sintonía / fuera de ritmo** y **Estanques** |
 | `/metodo`   | Método, umbrales de la versión, hipótesis, procedencia, descargas y créditos                          |
@@ -69,7 +69,6 @@ pnpm build
 
 - Comparador de sensores: el esquema OpenAPI no trae la ruta `/sensores/`.
 - «Inundación esperada» (`if_esperada`) todavía no tiene lugar en el inspector.
-- Intro animada del diseño; hoy la portada es estática.
 - Textos del relato y versión en inglés, sin validar con el equipo.
 - Color de la clase «Sin dato»: el backend no lo pinta y aquí va sin color.
 

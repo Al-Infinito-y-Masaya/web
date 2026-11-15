@@ -116,6 +116,8 @@ export const en: Textos = {
 	},
 
 	inicio: {
+		saltar: 'Skip the intro',
+		repetir: 'Replay the intro',
 		evento: 'NASA Space Apps 2026 · Dancing with the SARs',
 		frase: 'Is the tide still reaching the mangroves of Estero Real? Mangroove listens with the radar of the NISAR satellite, which sees through clouds and leaves, and compares every pass with the height of the tide.',
 		historia: 'See the story',

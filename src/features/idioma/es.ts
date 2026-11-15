@@ -125,6 +125,8 @@ export const es = {
 	},
 
 	inicio: {
+		saltar: 'Saltar la intro',
+		repetir: 'Repetir la intro',
 		evento: 'NASA Space Apps 2026 · Dancing with the SARs',
 		frase: '¿Sigue llegando la marea al manglar del Estero Real? Mangroove lo escucha con el radar del satélite NISAR, que atraviesa nubes y hojas, y compara cada pasada con la altura de la marea.',
 		historia: 'Ver la historia',

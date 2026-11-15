@@ -315,14 +315,74 @@
 		transform: none;
 	}
 }
-.aparecer {
+.aparecer,
+[data-entra] {
 	animation: aparecer 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+[data-entra] {
+	animation-duration: 520ms;
+}
+
+/*
+ * Intro of the home screen. The camera starts under water, follows a shrimp
+ * and its shoal, and rises to the mangrove. `--intro-*` are set by the screen.
+ */
+.intro-camara {
+	animation: intro-camara 2400ms cubic-bezier(0.65, 0, 0.35, 1) 2600ms both;
+	will-change: transform;
+}
+@keyframes intro-camara {
+	from {
+		transform: translateY(-50%);
+	}
+	to {
+		transform: none;
+	}
+}
+.intro-nado {
+	animation: intro-nado var(--duracion, 4s) linear var(--retraso, 0s) both;
+	will-change: transform;
+}
+@keyframes intro-nado {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(calc(-100vw - 100%));
+	}
+}
+.intro-vaiven {
+	animation: intro-vaiven 900ms ease-in-out infinite alternate;
+}
+@keyframes intro-vaiven {
+	from {
+		transform: translateY(-5px) rotate(-1.5deg);
+	}
+	to {
+		transform: translateY(5px) rotate(1.5deg);
+	}
+}
+/* Three-frame sprite: the legs paddle while the shrimp crosses. */
+.camaron {
+	aspect-ratio: 400 / 174;
+	background: url('/marca/camaron.webp') 0 0 / 300% 100% no-repeat;
+	animation: camaron-nada 420ms steps(3) infinite;
+}
+@keyframes camaron-nada {
+	to {
+		background-position-x: 150%;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.nota-flotante,
 	.pulso-nota,
-	.aparecer {
+	.aparecer,
+	[data-entra],
+	.intro-camara,
+	.intro-nado,
+	.intro-vaiven,
+	.camaron {
 		animation: none;
 	}
 	.nota-flotante {

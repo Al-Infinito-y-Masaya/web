@@ -14,6 +14,8 @@ export const appConfig = {
 		theme: 'mangroove-tema',
 		language: 'mangroove-idioma',
 		sound: 'mangroove-sonido',
+		/** Session flag: the intro already played in this tab. */
+		intro: 'mangroove-intro-vista',
 		tableColumns: 'app-table-columns:'
 	}
 } as const;
