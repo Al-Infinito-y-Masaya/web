@@ -37,3 +37,11 @@ El recorrido de veinte selecciones en una sesión ya iniciada añadió 4,851 MB 
 - Paquete transferido SHA-256: `a9a876bbfc6a853293860f791a16484c59265dfad1a6a3f5f9d99e30d8d96fe9`.
 
 La revisión visual y las mediciones se hicieron sobre la compilación servida localmente, con el mismo contenido de datos. La comprobación pública se hizo con validación HTTPS normal desde EC2; permanece el problema de confianza de certificados del navegador local documentado previamente. No se realizó push a GitHub.
+
+## Transiciones entre pasadas (rama `perf/transiciones-pasadas`)
+
+- Al terminar de mostrar una pasada se precargan en segundo plano la siguiente y la anterior (solo la siguiente con ahorro de datos o conexión 2G/3G). La precarga empieza después de la pasada elegida, para no competir con ella. Caché de cinco fuentes; las vecinas no se expulsan.
+- El aviso de carga aparece solo si la pasada tarda más de 300 ms.
+- Fundido de 200 ms entre la pasada anterior y la nueva, en lugar de un corte.
+- «Avanzar en la misma órbita», activado por defecto: las flechas y la reproducción saltan a la siguiente pasada ascendente o descendente. Las órbitas miran el manglar con otro ángulo y su brillo cambia aunque no cambie el agua. `?orbita=todas` recupera el orden cronológico.
+- Navegador local con datos de Chismuyo: al avanzar, cero peticiones PMTiles nuevas y la pasada lista en 50–80 ms, sin aviso. Las mediciones de tiempo con la ventana en segundo plano no son válidas (la página baja a unos 5 cuadros por segundo).

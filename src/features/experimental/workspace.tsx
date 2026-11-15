@@ -34,6 +34,7 @@ import { assetUrl, formatP, loadCell, percent, type Cell, type Dataset, type Sit
 import { Inspector, Legend } from './details';
 import { layerLabels, type Layer, type MapStatus } from './layers';
 import { MapBoundary } from './map-boundary';
+import { neighborDates, stepDate } from './stepping';
 import { timelineData } from './timeline';
 
 const ExperimentalMap = lazy(() =>
@@ -104,6 +105,8 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 			: 'rgb'
 	);
 	const [playing, setPlaying] = useState(false);
+	// Consecutive dates of different orbits differ in brightness by geometry alone.
+	const [sameOrbit, setSameOrbit] = useState(initial.get('orbita') !== 'todas');
 	const [mapStatus, setMapStatus] = useState<MapStatus>({ key: '', loading: true, error: false });
 	const [selected, setSelected] = useState<Cell | null>(null);
 	const [cellMessage, setCellMessage] = useState(
@@ -146,14 +149,18 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 		},
 		[m]
 	);
+	const neighbors = useMemo(
+		() => neighborDates(m.fechas, date, sameOrbit).map(i => m.fechas[i]!.fecha_id),
+		[m, date, sameOrbit]
+	);
 	useEffect(() => {
 		if (!playing || mapPending || mapFailed) return;
 		const timer = window.setTimeout(
-			() => selectDate(m.fechas[(date + 1) % m.fechas.length]!.fecha_id, true),
+			() => selectDate(m.fechas[stepDate(m.fechas, date, 1, sameOrbit)]!.fecha_id, true),
 			1300
 		);
 		return () => window.clearTimeout(timer);
-	}, [playing, date, m, selectDate, mapPending, mapFailed]);
+	}, [playing, date, m, selectDate, mapPending, mapFailed, sameOrbit]);
 	useEffect(() => {
 		if (mapPending || mapFailed || !temporal) return;
 		sonido.tocarMarea(current.marea_m, range, false);
@@ -162,8 +169,10 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 		const url = new URL(window.location.href);
 		url.searchParams.set('fecha', current.fecha_id);
 		url.searchParams.set('capa', layer);
+		if (sameOrbit) url.searchParams.delete('orbita');
+		else url.searchParams.set('orbita', 'todas');
 		window.history.replaceState(null, '', url);
-	}, [current.fecha_id, layer]);
+	}, [current.fecha_id, layer, sameOrbit]);
 	useEffect(() => {
 		if (!copied) return;
 		const timer = window.setTimeout(() => setCopied(false), 2400);
@@ -295,6 +304,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 								dataset={dataset}
 								date={current.fecha_id}
 								layer={layer}
+								neighbors={temporal ? neighbors : []}
 								selected={selected}
 								onPoint={(lon, lat) => void inspect(lon, lat)}
 								onStatus={updateMapStatus}
@@ -357,6 +367,21 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 								</dd>
 							</div>
 						</dl>
+						<label className="lab-orbit-toggle">
+							<input
+								type="checkbox"
+								checked={sameOrbit}
+								onChange={e => setSameOrbit(e.target.checked)}
+							/>
+							<span>
+								Avanzar en la misma órbita
+								<small>
+									Las pasadas ascendentes y descendentes miran el manglar desde
+									ángulos distintos: compararlas cambia el brillo aunque no cambie
+									el agua.
+								</small>
+							</span>
+						</label>
 						<div
 							className="lab-raster-switch"
 							role="group"
@@ -577,8 +602,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 							},
 							onPaso: delta =>
 								selectDate(
-									m.fechas[(date + delta + m.fechas.length) % m.fechas.length]!
-										.fecha_id
+									m.fechas[stepDate(m.fechas, date, delta, sameOrbit)]!.fecha_id
 								)
 						}}
 					/>
