@@ -24,7 +24,11 @@ Frontend original compilado desde `044033e4c7a9d59275e3871eabf400ced0f7562f`. Se
 - Caddy antes: `3ac7accc670054c933c18ba348240472e24b42321987ebfbd066f5f6baeee435`; después: `a0f0e8c4547358fa000186593dc00b2c973d5ec329a4d4555ee7988a819199df`.
 - Paquete transferido SHA-256: `c741a4d2f6906a958416c29e56168be2b216bc008c7917281b824eed927a11fe`.
 
-La activación pública está pendiente del cambio DNS acordado con el usuario: A de `@` a `16.148.46.37`, sustituyendo el aparcamiento de Porkbun. Al preparar el servidor, el dominio resolvía a `207.207.210.107` y `207.207.210.229`; no había AAAA. `www` continúa apuntando al aparcamiento y no forma parte de este despliegue. HTTPS se verificará cuando el dominio resuelva a EC2; Caddy gestiona el certificado automáticamente.
+El usuario cambió el DNS y se confirmó A de `mangroove.earth` a `16.148.46.37`, tanto en Porkbun como en el resolutor 1.1.1.1. Caddy obtuvo el certificado y el dominio respondió HTTP/2 200 por HTTPS a las 16:59 UTC del 15 de noviembre de 2026. `www` continúa apuntando al aparcamiento y no forma parte de este despliegue.
+
+La verificación pública mediante `verify-main.py`, con validación TLS normal desde EC2, confirmó los hashes de los 65 archivos de interfaz y los 143 archivos científicos. Pasaron las rutas de ambas aplicaciones, la redirección de Explorar, Cache-Control, dos cargas Range HTTP 206 de PMTiles, la ausencia de rutas administrativas bajo `/api/`, el manifiesto original sin cambios y la salud de API/DB/cache/almacenamiento. Registro: `/srv/mangroove/web/backups/2026-11-15-r1/public-verification.json`.
+
+El navegador de la máquina local sigue informando `ERR_CERT_AUTHORITY_INVALID`, también para este dominio. No se eludió la advertencia. La comprobación visual se realizó sobre los mismos archivos servidos desde EC2 mediante un túnel SSH, mientras la verificación HTTPS pública desde EC2 pasó con el almacén de confianza del sistema.
 
 ## Reversión
 
