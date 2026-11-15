@@ -34,6 +34,7 @@ import { assetUrl, formatP, loadCell, percent, type Cell, type Dataset, type Sit
 import { Inspector, Legend } from './details';
 import { layerLabels, type Layer, type MapStatus } from './layers';
 import { MapBoundary } from './map-boundary';
+import { neighborDates, stepDate } from './stepping';
 import { timelineData } from './timeline';
 
 const ExperimentalMap = lazy(() =>
@@ -104,6 +105,9 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 			: 'rgb'
 	);
 	const [playing, setPlaying] = useState(false);
+	// The score is followed note by note; `?orbita=misma` steps within one orbit, whose
+	// dates share a viewing geometry (different orbits differ in brightness by geometry alone).
+	const [sameOrbit, setSameOrbit] = useState(initial.get('orbita') === 'misma');
 	const [mapStatus, setMapStatus] = useState<MapStatus>({ key: '', loading: true, error: false });
 	const [selected, setSelected] = useState<Cell | null>(null);
 	const [cellMessage, setCellMessage] = useState(
@@ -146,14 +150,18 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 		},
 		[m]
 	);
+	const neighbors = useMemo(
+		() => neighborDates(m.fechas, date, sameOrbit).map(i => m.fechas[i]!.fecha_id),
+		[m, date, sameOrbit]
+	);
 	useEffect(() => {
 		if (!playing || mapPending || mapFailed) return;
 		const timer = window.setTimeout(
-			() => selectDate(m.fechas[(date + 1) % m.fechas.length]!.fecha_id, true),
+			() => selectDate(m.fechas[stepDate(m.fechas, date, 1, sameOrbit)]!.fecha_id, true),
 			1300
 		);
 		return () => window.clearTimeout(timer);
-	}, [playing, date, m, selectDate, mapPending, mapFailed]);
+	}, [playing, date, m, selectDate, mapPending, mapFailed, sameOrbit]);
 	useEffect(() => {
 		if (mapPending || mapFailed || !temporal) return;
 		sonido.tocarMarea(current.marea_m, range, false);
@@ -162,8 +170,10 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 		const url = new URL(window.location.href);
 		url.searchParams.set('fecha', current.fecha_id);
 		url.searchParams.set('capa', layer);
+		if (sameOrbit) url.searchParams.set('orbita', 'misma');
+		else url.searchParams.delete('orbita');
 		window.history.replaceState(null, '', url);
-	}, [current.fecha_id, layer]);
+	}, [current.fecha_id, layer, sameOrbit]);
 	useEffect(() => {
 		if (!copied) return;
 		const timer = window.setTimeout(() => setCopied(false), 2400);
@@ -295,6 +305,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 								dataset={dataset}
 								date={current.fecha_id}
 								layer={layer}
+								neighbors={temporal ? neighbors : []}
 								selected={selected}
 								onPoint={(lon, lat) => void inspect(lon, lat)}
 								onStatus={updateMapStatus}
@@ -357,6 +368,31 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 								</dd>
 							</div>
 						</dl>
+						<div className="lab-orbit">
+							<p id="recorrido-titulo" className="lab-orbit-title">
+								Recorrido de la partitura
+							</p>
+							<div
+								className="lab-raster-switch lab-orbit-switch"
+								role="group"
+								aria-labelledby="recorrido-titulo"
+							>
+								<button
+									aria-pressed={!sameOrbit}
+									onClick={() => setSameOrbit(false)}
+								>
+									Nota por nota
+								</button>
+								<button aria-pressed={sameOrbit} onClick={() => setSameOrbit(true)}>
+									Misma órbita
+								</button>
+							</div>
+							<p className="exp-caption">
+								{sameOrbit
+									? `Salta a la siguiente pasada ${current.direccion === 'asc' ? 'ascendente' : 'descendente'}: compara el manglar siempre desde el mismo ángulo.`
+									: 'Sigue la partitura en orden. Ascendentes y descendentes se alternan y miran el manglar desde ángulos distintos: el brillo puede cambiar aunque no cambie el agua.'}
+							</p>
+						</div>
 						<div
 							className="lab-raster-switch"
 							role="group"
@@ -577,8 +613,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 							},
 							onPaso: delta =>
 								selectDate(
-									m.fechas[(date + delta + m.fechas.length) % m.fechas.length]!
-										.fecha_id
+									m.fechas[stepDate(m.fechas, date, delta, sameOrbit)]!.fecha_id
 								)
 						}}
 					/>

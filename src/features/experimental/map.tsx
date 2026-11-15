@@ -13,6 +13,15 @@ import { type Layer, type MapStatus } from './layers';
 import { RasterCache, type RasterStatus } from './raster-cache';
 
 const protocol = new Protocol();
+const NOTICE_DELAY_MS = 300;
+const CROSSFADE_MS = 200;
+/** One neighbour on data-saving or slow connections, two otherwise. */
+function prefetchLimit() {
+	const connection = (
+		navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }
+	).connection;
+	return connection?.saveData || /(^|-)(2g|3g)$/.test(connection?.effectiveType ?? '') ? 1 : 2;
+}
 maplibregl.setWorkerUrl(workerUrl);
 maplibregl.addProtocol('pmtiles', protocol.tile);
 const stateColors: ExpressionSpecification = [
@@ -30,6 +39,7 @@ export function ExperimentalMap({
 	dataset,
 	date,
 	layer,
+	neighbors = [],
 	selected,
 	onPoint,
 	onStatus,
@@ -38,6 +48,8 @@ export function ExperimentalMap({
 	dataset: Dataset;
 	date: string;
 	layer: Layer;
+	/** Dates to fetch in the background once the current one is on screen. */
+	neighbors?: string[];
 	selected: Cell | null;
 	onPoint: (lon: number, lat: number) => void;
 	onStatus: (status: MapStatus) => void;
@@ -55,6 +67,7 @@ export function ExperimentalMap({
 	const [loading, setLoading] = useState(true);
 	const [retry, setRetry] = useState(0);
 	const [slow, setSlow] = useState(false);
+	const [notice, setNotice] = useState(false);
 	const padding = () =>
 		embedded && window.innerWidth > 900
 			? { top: 80, bottom: 210, left: 30, right: 70 }
@@ -65,6 +78,15 @@ export function ExperimentalMap({
 	useEffect(() => {
 		statusCallback.current = onStatus;
 	}, [onStatus]);
+	useEffect(() => {
+		// A cached or fast date swaps without flashing a message.
+		if (!loading) return;
+		const timer = window.setTimeout(() => setNotice(true), NOTICE_DELAY_MS);
+		return () => {
+			window.clearTimeout(timer);
+			setNotice(false);
+		};
+	}, [loading]);
 	useEffect(() => {
 		if (!loading) return;
 		const timer = window.setTimeout(() => setSlow(true), 3500);
@@ -106,7 +128,8 @@ export function ExperimentalMap({
 							paint: {
 								'raster-resampling': 'nearest',
 								'raster-fade-duration': 0,
-								'raster-opacity': 0
+								'raster-opacity': 0,
+								'raster-opacity-transition': { duration: CROSSFADE_MS, delay: 0 }
 							}
 						},
 						'connectivity'
@@ -307,6 +330,24 @@ export function ExperimentalMap({
 			};
 		}
 	}, [dataset, date, layer, ready, retry]);
+	const neighborKey = neighbors.join('|');
+	const currentShown = rasterStatus?.displayed === `${layer}:${date}` && !rasterStatus.loading;
+	useEffect(() => {
+		// Warm up the neighbouring dates only after the chosen one is on screen, so they
+		// never compete with it for bandwidth.
+		if (!ready || !currentShown || (layer !== 'rgb' && layer !== 'clases')) return;
+		const items = neighborKey
+			.split('|')
+			.filter(Boolean)
+			.slice(0, prefetchLimit())
+			.flatMap(id => {
+				const relative = dataset.manifest.capas[layer][id];
+				return relative
+					? [[`${layer}:${id}`, assetUrl(relative, dataset.manifestUrl)] as const]
+					: [];
+			});
+		rasterCache.current?.prefetch(items);
+	}, [dataset, layer, neighborKey, ready, currentShown]);
 	useEffect(() => {
 		const m = map.current;
 		if (!m || !ready) return;
@@ -370,7 +411,8 @@ export function ExperimentalMap({
 					</button>
 				</div>
 			) : (
-				loading && (
+				loading &&
+				notice && (
 					<p className="exp-map-message" role="status">
 						{(layer === 'rgb' || layer === 'clases') &&
 						rasterStatus?.displayed &&

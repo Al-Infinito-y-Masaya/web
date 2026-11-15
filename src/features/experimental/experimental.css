@@ -203,6 +203,16 @@
 .lab-facts dd {
 	font-size: 16px;
 }
+.lab-orbit {
+	margin-top: 16px;
+}
+.lab-orbit-title {
+	font-size: 12px;
+	color: var(--manglar-oceano);
+}
+.lab-orbit-switch {
+	margin: 6px 0 8px;
+}
 .lab-raster-switch {
 	display: flex;
 	padding: 4px;
