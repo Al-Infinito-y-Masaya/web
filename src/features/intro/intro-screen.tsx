@@ -233,7 +233,7 @@ export function IntroScreen() {
 					<div
 						data-title-bg
 						aria-hidden="true"
-						className="absolute -inset-x-[0.3em] -top-[0.04em] -bottom-[0.2em] -z-10 rounded-[0.4em] bg-manglar-papel/80 opacity-0 blur-[10px]"
+						className="absolute -inset-x-[0.04em] top-[0.18em] -bottom-[0.06em] -z-10 rounded-[0.25em] bg-manglar-papel/75 opacity-0 blur-[5px]"
 					/>
 					<h1
 						ref={titleRef}
