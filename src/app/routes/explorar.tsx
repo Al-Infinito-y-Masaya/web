@@ -8,7 +8,7 @@ import { Explorar, type CambiarBusqueda } from '@/features/explorar/explorar';
 export const Route = createFileRoute('/explorar')({
 	beforeLoad: () => {
 		if (env.experimentalExplorer)
-			throw redirect({ href: '/laboratorio/aserradores', reloadDocument: true });
+			throw redirect({ href: '/laboratorio/chismuyo', reloadDocument: true });
 	},
 	validateSearch: search => busquedaSchema.parse(search),
 	component: PaginaExplorar

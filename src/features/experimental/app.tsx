@@ -18,7 +18,7 @@ export function ExperimentalApp() {
 		readJson(catalogUrl, catalogSchema, controller.signal)
 			.then(async catalog => {
 				const site = catalog.sitios.find(
-					s => s.id === (slug === 'laboratorio' ? 'aserradores' : slug)
+					s => s.id === (slug === 'laboratorio' ? 'chismuyo' : slug)
 				);
 				if (!site) throw new Error('Este sitio no está incluido en el laboratorio.');
 				const loaded = await loadDataset(site, catalogUrl, controller.signal);
@@ -53,8 +53,8 @@ export function ExperimentalApp() {
 							>
 								Reintentar
 							</button>
-							<a className="boton boton-contorno" href="/laboratorio/aserradores">
-								Abrir Aserradores
+							<a className="boton boton-contorno" href="/laboratorio/chismuyo">
+								Abrir Chismuyo
 							</a>
 						</div>
 					)}

@@ -12,7 +12,7 @@ export const catalogSchema = z.object({
 	sitios: z
 		.array(
 			z.object({
-				id: z.enum(['aserradores', 'padre_ramos']),
+				id: z.enum(['aserradores', 'padre_ramos', 'chismuyo']),
 				nombre: z.string(),
 				publicacion: z.string(),
 				contrato: z.literal('0.2.0'),

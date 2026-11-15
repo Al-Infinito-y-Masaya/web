@@ -58,7 +58,11 @@ export default defineConfig({
 						fs.createReadStream(file, { start, end }).pipe(res);
 						return;
 					}
-					if (req.url?.match(/^\/laboratorio\/(?:aserradores|padre_ramos)?(?:\?.*)?$/))
+					if (
+						req.url?.match(
+							/^\/laboratorio\/(?:aserradores|padre_ramos|chismuyo)?(?:\?.*)?$/
+						)
+					)
 						req.url = '/laboratorio/experimental/index.html';
 					next();
 				});
