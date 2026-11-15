@@ -279,7 +279,7 @@ export function IntroScreen() {
 						SOFT_SHADOW
 					)}
 				>
-					Al infinito y Masaya
+					Al Infinito y Masaya
 				</p>
 			</header>
 
