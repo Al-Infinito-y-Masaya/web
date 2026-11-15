@@ -156,6 +156,23 @@
 	--radius-2xl: calc(var(--radius) * 1.8);
 }
 
+/*
+ * Marca Mangroove: paleta y tipografías de la intro (bg-manglar-oceano,
+ * text-manglar-papel, font-mangroove-display…). Son colores de marca fijos,
+ * no cambian con el tema claro/oscuro.
+ */
+@theme {
+	--color-manglar-verde: #0d3b16;
+	--color-manglar-arena: #ead39d;
+	--color-manglar-olivo: #737f35;
+	--color-manglar-oceano: #233e45;
+	--color-manglar-carmesi: #52110f;
+	--color-manglar-papel: #f7f1e3;
+
+	--font-mangroove-display: 'Josefin Sans', 'Futura', 'Century Gothic', sans-serif;
+	--font-mangroove-body: 'Jost', 'Futura', 'Trebuchet MS', sans-serif;
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;

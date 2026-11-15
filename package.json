@@ -36,6 +36,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"fetch-retry": "^6.0.0",
+		"gsap": "3.12.5",
 		"lucide-react": "^1.37.0",
 		"neverthrow": "8.2.0",
 		"openapi-fetch": "^0.17.0",

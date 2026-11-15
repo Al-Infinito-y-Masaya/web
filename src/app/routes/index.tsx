@@ -1,8 +1,8 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
-/** `/` sends signed-in users to the dashboard (and the guard sends everyone else to /login). */
+import { IntroScreen } from '@/features/intro/intro-screen';
+
+/** `/` es la portada pública: la intro animada de Mangroove. */
 export const Route = createFileRoute('/')({
-	beforeLoad: () => {
-		throw redirect({ to: '/dashboard' });
-	}
+	component: IntroScreen
 });

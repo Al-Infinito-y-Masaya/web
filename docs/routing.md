@@ -7,7 +7,7 @@ Routing is file-based ([TanStack Router](https://tanstack.com/router/latest/docs
 | File                     | URL              | Notes                                    |
 | ------------------------ | ---------------- | ---------------------------------------- |
 | `__root.tsx`             | —                | Providers, 404 and error boundaries      |
-| `index.tsx`              | `/`              | Redirects to `/dashboard`                |
+| `index.tsx`              | `/`              | Public animated intro (`features/intro`) |
 | `_auth/route.tsx`        | —                | Public layout; redirects signed-in users |
 | `_auth/login.tsx`        | `/login`         | `?redirect=` search param                |
 | `_app/route.tsx`         | —                | Auth guard + app shell (sidebar, topbar) |
