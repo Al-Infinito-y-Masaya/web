@@ -397,6 +397,7 @@ function Vista({
 	const modos = (
 		<nav
 			aria-label={t.modos.etiqueta}
+			style={{ scrollbarWidth: 'none' }}
 			className="papel pointer-events-auto flex max-w-full gap-1 overflow-x-auto rounded-full border border-manglar-olivo/50 p-1 shadow-md"
 		>
 			{(

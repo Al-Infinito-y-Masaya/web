@@ -19,7 +19,7 @@ import { cn } from '@/shared/utils';
  */
 
 const COLOR = { hh: 'var(--dato-hh)', hv: 'var(--dato-hv)', marea: 'var(--dato-marea)' };
-const M = { izquierda: 44, derecha: 30, arriba: 10 };
+const M = { izquierda: 44, derecha: 30, arriba: 24 };
 const ALTO_DB = 132;
 const ALTO_MAREA = 54;
 const ALTO_BANDA = 22;
@@ -98,7 +98,12 @@ export function GraficaSerie({ serie, cambio, manifiesto }: Props) {
 	const columna = n ? interior / n : interior;
 
 	const kCambio = cambio ? serie.findIndex(p => p.fecha_id === cambio.fecha_id) : -1;
-	const cadaEtiqueta = Math.max(1, Math.ceil(58 / columna));
+	// Date labels: the last pass first, then every pass that keeps clear of the ones placed.
+	const separacion = Math.max(1, Math.ceil(58 / columna));
+	const conEtiqueta = new Set<number>(n ? [n - 1] : []);
+	for (let k = 0; k < n; k++) {
+		if ([...conEtiqueta].every(e => Math.abs(e - k) >= separacion)) conEtiqueta.add(k);
+	}
 
 	const linea = (valores: (number | null)[]) =>
 		tramos(valores).map(tramo =>
@@ -251,7 +256,7 @@ export function GraficaSerie({ serie, cambio, manifiesto }: Props) {
 							<line
 								x1={x(kCambio)}
 								x2={x(kCambio)}
-								y1={M.arriba - 4}
+								y1={14}
 								y2={y0Banda + ALTO_BANDA}
 								stroke="var(--manglar-carmesi)"
 								strokeWidth={1.5}
@@ -259,7 +264,7 @@ export function GraficaSerie({ serie, cambio, manifiesto }: Props) {
 							/>
 							<text
 								x={x(kCambio)}
-								y={M.arriba - 1}
+								y={1}
 								textAnchor={kCambio > n / 2 ? 'end' : 'start'}
 								dx={kCambio > n / 2 ? -5 : 5}
 								dominantBaseline="hanging"
@@ -383,7 +388,7 @@ export function GraficaSerie({ serie, cambio, manifiesto }: Props) {
 										{p.clase}
 									</text>
 								)}
-								{(k % cadaEtiqueta === 0 || k === n - 1) && p.fecha && (
+								{conEtiqueta.has(k) && p.fecha && (
 									<text
 										x={x(k)}
 										y={alto - 6}

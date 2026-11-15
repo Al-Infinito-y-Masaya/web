@@ -47,13 +47,14 @@ export function crearFormato(idioma: 'es' | 'en') {
 		fechaLarga: fecha({ day: 'numeric', month: 'short', year: 'numeric' }),
 		fechaCorta: fecha({ day: 'numeric', month: 'short' }),
 		mes: fecha({ month: 'short' }),
-		hora: fecha({ hour: 'numeric', minute: '2-digit' }),
+		hora: fecha({ hour: 'numeric', minute: '2-digit', hour12: true }),
 		fechaHora: fecha({
 			day: 'numeric',
 			month: 'short',
 			year: 'numeric',
 			hour: 'numeric',
-			minute: '2-digit'
+			minute: '2-digit',
+			hour12: true
 		}),
 		bytes: (cantidad: number) => {
 			if (cantidad >= 1024 * 1024) return `${numero(cantidad / (1024 * 1024), 1)} MB`;

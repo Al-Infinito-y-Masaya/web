@@ -14,6 +14,7 @@ import type { Caja } from '@/features/mapa/proyeccion';
 import { Visor, type CapaRaster, type EstadoCapa } from '@/features/mapa/visor';
 import { NotaMusical } from '@/features/marca/marca';
 import { sonido } from '@/features/partitura/sonido';
+import { useMediaQuery } from '@/shared/hooks/use-media-query';
 import { cn } from '@/shared/utils';
 
 /**
@@ -40,6 +41,8 @@ function alrededores(caja: Caja, factor: number): Caja {
 }
 
 const MARGEN_ESCENA = { arriba: 60, abajo: 60, izquierda: 24, derecha: 24 };
+/** Leaves room for the score at the foot of the scene. */
+const MARGEN_PARTITURA = { arriba: 60, abajo: 232, izquierda: 24, derecha: 24 };
 
 export function Relato() {
 	const { t } = useIdioma();
@@ -182,6 +185,7 @@ function Escenario({
 }) {
 	const { t, fmt } = useIdioma();
 	const pasada = useMemo(() => pasadaDelRelato(m), [m]);
+	const ancha = useMediaQuery('(min-width: 640px)');
 	const [fallo, setFallo] = useState<string | null>(null);
 	const [nota, setNota] = useState(pasada?.id);
 	const rango = useMemo(() => rangoDeMarea(m.fechas), [m.fechas]);
@@ -238,7 +242,7 @@ function Escenario({
 				limitesCapas={m.limites}
 				capas={capa ? [capa] : []}
 				teselas={env.tilesUrl || undefined}
-				margen={MARGEN_ESCENA}
+				margen={escena === 'marea' && ancha ? MARGEN_PARTITURA : MARGEN_ESCENA}
 				onEstadoCapa={alEstado}
 				textos={t.mapa.visor}
 				descripcion={
@@ -288,7 +292,7 @@ function Escenario({
 				</div>
 			)}
 			{(escena === 'rgb' || escena === 'clases' || escena === 'conectividad') && (
-				<div className="panel absolute right-3 bottom-8 hidden max-h-[60%] w-72 overflow-y-auto lg:block [&>section]:border-0 [&>section]:bg-transparent">
+				<div className="panel absolute top-3 right-3 hidden max-h-[70%] w-72 overflow-y-auto lg:block [&>section]:border-0 [&>section]:bg-transparent">
 					{escena === 'rgb' && <LeyendaRgb />}
 					{escena === 'clases' && <LeyendaClases manifiesto={m} />}
 					{escena === 'conectividad' && (

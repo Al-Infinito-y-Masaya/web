@@ -559,7 +559,7 @@ export function Visor({
 				style={{
 					left: (margen?.izquierda ?? 0) > 100 ? margen!.izquierda! : 12,
 					right: (margen?.derecha ?? 0) > 100 ? margen!.derecha! : 12,
-					bottom: (margen?.abajo ?? 0) > 100 ? margen!.abajo! - 18 : (margen?.abajo ?? 8)
+					bottom: (margen?.abajo ?? 0) > 100 ? margen!.abajo! - 18 : 8
 				}}
 			>
 				{barra ? (
