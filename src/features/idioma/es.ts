@@ -317,7 +317,6 @@ export const es = {
 
 	inspector: {
 		etiqueta: 'Inspector de celda',
-		titulo: (id: string) => `Celda ${id}`,
 		tituloVacio: 'Celda',
 		cerrar: 'Cerrar el inspector',
 		cargando: 'Buscando la historia de esta hectárea…',

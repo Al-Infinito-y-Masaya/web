@@ -40,7 +40,7 @@ const ALTO = 150;
 const PENTAGRAMA = { arriba: 22, abajo: 82 };
 const FILA_SILENCIO = 104;
 const FILA_FECHA = 136;
-const MARGEN = { izquierda: 52, derecha: 16 };
+const MARGEN = { izquierda: 68, derecha: 16 };
 const PASO_MINIMO = 30;
 
 type Props = {
@@ -120,8 +120,20 @@ export function Partitura({
 	};
 
 	const lineas = [max, max / 2, 0, min / 2, min];
-	// Show a date under a note when it is selected, compared, or far enough from the last label.
-	const cada = Math.max(1, Math.ceil(64 / paso));
+	// Dates under the notes: always for the selected and compared passes, then as
+	// many of the others as fit without touching a label already placed.
+	const conFecha = useMemo(() => {
+		const separacion = Math.max(1, Math.ceil(70 / paso));
+		const elegidas = fechas
+			.map((f, k) =>
+				f.id === seleccion || (comparacion != null && f.id === comparacion) ? k : -1
+			)
+			.filter(k => k >= 0);
+		const libre = (k: number) => elegidas.every(e => Math.abs(e - k) >= separacion);
+		for (const k of [0, fechas.length - 1]) if (k >= 0 && libre(k)) elegidas.push(k);
+		fechas.forEach((_, k) => libre(k) && elegidas.push(k));
+		return new Set(elegidas);
+	}, [fechas, seleccion, comparacion, paso]);
 
 	return (
 		<div
@@ -137,6 +149,17 @@ export function Partitura({
 				aria-orientation="horizontal"
 				className="block text-manglar-papel"
 			>
+				<defs>
+					<pattern
+						id="trama-brecha"
+						width="7"
+						height="7"
+						patternUnits="userSpaceOnUse"
+						patternTransform="rotate(-45)"
+					>
+						<rect width="2" height="7" fill="#ead39d" fillOpacity="0.55" />
+					</pattern>
+				</defs>
 				{lineas.map((valor, k) => (
 					<g key={k}>
 						<line
@@ -182,14 +205,17 @@ export function Partitura({
 										fmt.fechaCorta(item.brecha.hasta, zona)
 									)}
 								</title>
-								<foreignObject
-									x={x - paso / 2 + 3}
+								<rect
+									x={x - paso / 2 + 4}
 									y={PENTAGRAMA.arriba - 8}
-									width={paso - 6}
+									width={paso - 8}
 									height={PENTAGRAMA.abajo - PENTAGRAMA.arriba + 16}
-								>
-									<div className="trama-brecha size-full rounded-sm border border-dashed border-manglar-arena/50" />
-								</foreignObject>
+									rx={4}
+									fill="url(#trama-brecha)"
+									stroke="#ead39d"
+									strokeOpacity={0.6}
+									strokeDasharray="4 3"
+								/>
 								<text
 									x={x}
 									y={FILA_FECHA}
@@ -208,8 +234,6 @@ export function Partitura({
 					const lluvia = excluidaPorLluvia(fecha, manifiesto);
 					const tenue = lluvia || (modo === 'conectividad' && !fecha.usada_en_if_alta);
 					const y = fecha.marea_m === null ? FILA_SILENCIO : yDe(fecha.marea_m);
-					const conFecha =
-						esA || esB || indice % cada === 0 || indice === fechas.length - 1;
 					const descripcion = t.partitura.nota({
 						fecha: fmt.fechaLarga(fecha.fecha_hora, zona),
 						hora: fmt.hora(fecha.fecha_hora, zona),
@@ -269,7 +293,7 @@ export function Partitura({
 								<Nota x={x} y={y} fecha={fecha} destacada={esA || esB} />
 							</g>
 							{lluvia && <Gota x={x + 9} y={y - 30} />}
-							{conFecha && (
+							{conFecha.has(indice) && (
 								<text
 									x={x}
 									y={FILA_FECHA}

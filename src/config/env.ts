@@ -17,7 +17,7 @@ const schema = z.object({
 	VITE_TESELAS_URL: z
 		.string()
 		.default(
-			'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2016_3857/default/g/{z}/{y}/{x}.jpg'
+			'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg'
 		),
 	VITE_DEBUG: z
 		.string()

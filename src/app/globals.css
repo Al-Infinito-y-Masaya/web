@@ -141,6 +141,10 @@
 		color-scheme: light;
 		font-size: 16px;
 	}
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: color-mix(in srgb, var(--manglar-olivo) 60%, transparent) transparent;
+	}
 	body {
 		@apply bg-background text-foreground;
 		min-height: 100dvh;
@@ -258,13 +262,6 @@
 	/* Hatch for "datos insuficientes": state told by pattern, not only by color. */
 	.trama {
 		background-image: repeating-linear-gradient(45deg, #282828 0 2px, #9a9893 2px 6px);
-	}
-	.trama-brecha {
-		background-image: repeating-linear-gradient(
-			-45deg,
-			color-mix(in srgb, var(--manglar-arena) 55%, transparent) 0 2px,
-			transparent 2px 7px
-		);
 	}
 }
 

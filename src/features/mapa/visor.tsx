@@ -90,6 +90,8 @@ type Props = {
 	ref?: Ref<VisorHandle>;
 	/** Extent the view fits on load and on "encajar". */
 	limites: Caja;
+	/** Box the view is framed on. Changing it moves the map there. Defaults to `limites`. */
+	encuadre?: Caja;
 	/** Corners shared by every PNG layer of the version; `null` hides the layers. */
 	limitesCapas: Caja | null;
 	capas: CapaRaster[];
@@ -120,6 +122,7 @@ const reducirMovimiento = () =>
 export function Visor({
 	ref,
 	limites,
+	encuadre,
 	limitesCapas,
 	capas,
 	teselas,
@@ -174,9 +177,9 @@ export function Visor({
 						y: latAMundo(vistaInicial.lat),
 						zoom: vistaInicial.zoom
 					}
-				: encajar(limites, tamano, margen)
+				: encajar(encuadre ?? limites, tamano, margen)
 		);
-	}, [tamano, vistaInicial, limites, margen]);
+	}, [tamano, vistaInicial, limites, encuadre, margen]);
 
 	// Tell the parent where the view ended up, once the movement settles.
 	useEffect(() => {
@@ -214,6 +217,15 @@ export function Visor({
 		animacion.current = window.requestAnimationFrame(paso);
 	}, []);
 	useEffect(() => () => window.cancelAnimationFrame(animacion.current), []);
+
+	// A new frame (an act of the story, for instance) moves the map to it.
+	const encuadrado = useRef(encuadre);
+	useEffect(() => {
+		if (encuadrado.current === encuadre) return;
+		encuadrado.current = encuadre;
+		const { tamano: t, margen: m } = actual.current;
+		if (encuadre && t && iniciada.current) volar(encajar(encuadre, t, m));
+	}, [encuadre, volar]);
 
 	const zoomCentral = useCallback(
 		(delta: number) => {
@@ -541,20 +553,28 @@ export function Visor({
 				/>
 			)}
 
-			{barra && (
-				<div className="pointer-events-none absolute bottom-2 left-3 text-xs text-manglar-papel [text-shadow:0_1px_2px_rgb(0_0_0/0.8)]">
-					<div
-						className="h-1.5 border-x border-b border-manglar-papel"
-						style={{ width: barra.px }}
-					/>
-					{barra.metros >= 1000 ? `${barra.metros / 1000} km` : `${barra.metros} m`}
-				</div>
-			)}
-			{atribucion && (
-				<p className="pointer-events-none absolute right-3 bottom-2 max-w-[70%] text-right text-xs text-manglar-papel [text-shadow:0_1px_2px_rgb(0_0_0/0.9)]">
-					{atribucion}
-				</p>
-			)}
+			{/* Scale and credits sit inside the free area, clear of the floating panels. */}
+			<div
+				className="pointer-events-none absolute flex items-end justify-between gap-4 text-xs text-manglar-papel [text-shadow:0_1px_2px_rgb(0_0_0/0.9)]"
+				style={{
+					left: (margen?.izquierda ?? 0) > 100 ? margen!.izquierda! : 12,
+					right: (margen?.derecha ?? 0) > 100 ? margen!.derecha! : 12,
+					bottom: (margen?.abajo ?? 0) > 100 ? margen!.abajo! - 18 : (margen?.abajo ?? 8)
+				}}
+			>
+				{barra ? (
+					<div className="shrink-0">
+						<div
+							className="h-1.5 border-x border-b border-manglar-papel"
+							style={{ width: barra.px }}
+						/>
+						{barra.metros >= 1000 ? `${barra.metros / 1000} km` : `${barra.metros} m`}
+					</div>
+				) : (
+					<span />
+				)}
+				{atribucion && <p className="text-right">{atribucion}</p>}
+			</div>
 
 			{children}
 		</div>

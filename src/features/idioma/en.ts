@@ -299,7 +299,6 @@ export const en: Textos = {
 
 	inspector: {
 		etiqueta: 'Cell inspector',
-		titulo: id => `Cell ${id}`,
 		tituloVacio: 'Cell',
 		cerrar: 'Close the inspector',
 		cargando: 'Looking up the history of this hectare…',

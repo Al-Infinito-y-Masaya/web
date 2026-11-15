@@ -358,7 +358,7 @@ function Vista({
 						derecha: inspectorAbierto ? 388 : 84,
 						abajo: conPartitura ? 212 : 40
 					}
-				: { izquierda: 16, arriba: 72, derecha: 16, abajo: 24 },
+				: { izquierda: 16, arriba: 72, derecha: 16, abajo: 28 },
 		[escritorio, inspectorAbierto, conPartitura]
 	);
 	const alMoverVista = useCallback(

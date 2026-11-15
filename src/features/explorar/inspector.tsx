@@ -64,8 +64,11 @@ export function Inspector({
 	return (
 		<aside aria-label={t.inspector.etiqueta} className={cn('flex flex-col', className)}>
 			<div className="flex items-start justify-between gap-3">
-				<h2 className="text-2xl font-semibold break-all" tabIndex={-1}>
-					{celda ? t.inspector.titulo(celda.id) : t.inspector.tituloVacio}
+				<h2 className="text-2xl font-semibold">
+					{t.inspector.tituloVacio}
+					{celda && (
+						<span className="block text-base font-medium break-all">{celda.id}</span>
+					)}
 				</h2>
 				<button
 					type="button"

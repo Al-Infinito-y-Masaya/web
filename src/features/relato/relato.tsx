@@ -11,7 +11,7 @@ import { LeyendaClases, LeyendaFrecuencia, LeyendaRgb } from '@/features/explora
 import { Reproductor } from '@/features/explorar/reproductor';
 import { useIdioma } from '@/features/idioma/idioma';
 import type { Caja } from '@/features/mapa/proyeccion';
-import { Visor, type CapaRaster, type EstadoCapa, type VisorHandle } from '@/features/mapa/visor';
+import { Visor, type CapaRaster, type EstadoCapa } from '@/features/mapa/visor';
 import { NotaMusical } from '@/features/marca/marca';
 import { sonido } from '@/features/partitura/sonido';
 import { cn } from '@/shared/utils';
@@ -38,6 +38,8 @@ function alrededores(caja: Caja, factor: number): Caja {
 	const dy = ((caja[3] - caja[1]) * (factor - 1)) / 2;
 	return [caja[0] - dx, caja[1] - dy, caja[2] + dx, caja[3] + dy];
 }
+
+const MARGEN_ESCENA = { arriba: 60, abajo: 60, izquierda: 24, derecha: 24 };
 
 export function Relato() {
 	const { t } = useIdioma();
@@ -179,7 +181,6 @@ function Escenario({
 	escena: Escena;
 }) {
 	const { t, fmt } = useIdioma();
-	const visor = useRef<VisorHandle>(null);
 	const pasada = useMemo(() => pasadaDelRelato(m), [m]);
 	const [fallo, setFallo] = useState<string | null>(null);
 	const [nota, setNota] = useState(pasada?.id);
@@ -207,9 +208,10 @@ function Escenario({
 	}, [escena, pasada, m.capas, tipoConectividad, origen]);
 
 	// Each act has its scene: the first one steps back to show the gulf around the region.
-	useEffect(() => {
-		visor.current?.volarA(escena === 'contexto' ? alrededores(limites, 2.4) : limites);
-	}, [escena, limites]);
+	const encuadre = useMemo(
+		() => (escena === 'contexto' ? alrededores(limites, 2.4) : limites),
+		[escena, limites]
+	);
 
 	const alEstado = (id: string, estado: EstadoCapa) =>
 		setFallo(f => (estado === 'error' ? id : f === id ? null : f));
@@ -229,14 +231,14 @@ function Escenario({
 	return (
 		<div className="relative h-full">
 			<Visor
-				ref={visor}
 				className="absolute inset-0"
 				interactivo={false}
 				limites={limites}
+				encuadre={encuadre}
 				limitesCapas={m.limites}
 				capas={capa ? [capa] : []}
 				teselas={env.tilesUrl || undefined}
-				margen={{ arriba: 60, abajo: 60, izquierda: 24, derecha: 24 }}
+				margen={MARGEN_ESCENA}
 				onEstadoCapa={alEstado}
 				textos={t.mapa.visor}
 				descripcion={

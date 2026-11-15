@@ -4,7 +4,11 @@
  * visitor's time zone.
  */
 
-const LOCALES = { es: 'es-NI', en: 'en-US' } as const;
+// Plain `es` (decimal comma), as in the design; dates read the same as in es-NI.
+const LOCALES = { es: 'es', en: 'en-US' } as const;
+
+/** Non-breaking space between a number and its unit, so they never split across lines. */
+const NBSP = '\u00a0';
 
 const MENOS = '−';
 
@@ -35,11 +39,11 @@ export function crearFormato(idioma: 'es' | 'en') {
 		locale,
 		numero,
 		/** `0.05` → `5 %`. Callers handle `null` before formatting. */
-		porcentaje: (fraccion: number) => `${numero(Math.round(fraccion * 100))} %`,
+		porcentaje: (fraccion: number) => `${numero(Math.round(fraccion * 100))}${NBSP}%`,
 		/** `0.81` → `+0,81 m` */
-		metros: (valor: number) => `${valor > 0 ? '+' : ''}${numero(valor, 2)} m`,
-		decibeles: (valor: number) => `${numero(valor, 1)} dB`,
-		hectareas: (valor: number) => `${numero(Math.round(valor))} ha`,
+		metros: (valor: number) => `${valor > 0 ? '+' : ''}${numero(valor, 2)}${NBSP}m`,
+		decibeles: (valor: number) => `${numero(valor, 1)}${NBSP}dB`,
+		hectareas: (valor: number) => `${numero(Math.round(valor))}${NBSP}ha`,
 		fechaLarga: fecha({ day: 'numeric', month: 'short', year: 'numeric' }),
 		fechaCorta: fecha({ day: 'numeric', month: 'short' }),
 		mes: fecha({ month: 'short' }),
