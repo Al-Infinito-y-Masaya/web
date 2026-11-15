@@ -1,0 +1,214 @@
+{
+	"motor": "0.2.0",
+	"contrato": "0.2.0",
+	"config_sha256": "d0227e4c7a36edcb89725e6e10bb33af5d94db905a97cbff130e778d9bcad4d5",
+	"semilla": 42,
+	"crid": ["P05023", "P05036"],
+	"pilas": ["033_asc", "098_desc"],
+	"n_fechas": 20,
+	"prueba_marea": {
+		"clases": {
+			"n": 20,
+			"evaluable": true,
+			"r": 0.718,
+			"p": 0.0002,
+			"aprobada": true
+		},
+		"clases_por_pila": {
+			"033_asc": {
+				"n": 10,
+				"evaluable": true,
+				"r": 0.852,
+				"p": 0.0009,
+				"aprobada": true
+			},
+			"098_desc": {
+				"n": 10,
+				"evaluable": true,
+				"r": 0.595,
+				"p": 0.0348,
+				"aprobada": true
+			}
+		},
+		"senal_hh": {
+			"n": 20,
+			"evaluable": true,
+			"r": 0.853,
+			"p": 0.0,
+			"aprobada": true
+		},
+		"por_fecha": [
+			{
+				"fecha_id": "2026-06-21_desc",
+				"marea_m": 0.874,
+				"manglar_inundado": 0.0175,
+				"anomalia_hh_db": 0.245
+			},
+			{
+				"fecha_id": "2026-06-28_asc",
+				"marea_m": -0.329,
+				"manglar_inundado": 0.015,
+				"anomalia_hh_db": -0.21
+			},
+			{
+				"fecha_id": "2026-07-03_desc",
+				"marea_m": 0.543,
+				"manglar_inundado": 0.0179,
+				"anomalia_hh_db": 0.083
+			},
+			{
+				"fecha_id": "2026-07-10_asc",
+				"marea_m": -0.527,
+				"manglar_inundado": 0.015,
+				"anomalia_hh_db": -0.248
+			},
+			{
+				"fecha_id": "2026-07-15_desc",
+				"marea_m": -0.397,
+				"manglar_inundado": 0.0188,
+				"anomalia_hh_db": -0.23
+			},
+			{
+				"fecha_id": "2026-07-22_asc",
+				"marea_m": -0.011,
+				"manglar_inundado": 0.0146,
+				"anomalia_hh_db": -0.229
+			},
+			{
+				"fecha_id": "2026-07-27_desc",
+				"marea_m": -0.629,
+				"manglar_inundado": 0.015,
+				"anomalia_hh_db": -0.285
+			},
+			{
+				"fecha_id": "2026-08-15_asc",
+				"marea_m": 1.118,
+				"manglar_inundado": 0.02,
+				"anomalia_hh_db": 0.215
+			},
+			{
+				"fecha_id": "2026-08-20_desc",
+				"marea_m": 0.517,
+				"manglar_inundado": 0.0167,
+				"anomalia_hh_db": -0.071
+			},
+			{
+				"fecha_id": "2026-08-27_asc",
+				"marea_m": -0.092,
+				"manglar_inundado": 0.0154,
+				"anomalia_hh_db": -0.086
+			},
+			{
+				"fecha_id": "2026-09-01_desc",
+				"marea_m": 0.724,
+				"manglar_inundado": 0.0213,
+				"anomalia_hh_db": 0.282
+			},
+			{
+				"fecha_id": "2026-09-08_asc",
+				"marea_m": -0.746,
+				"manglar_inundado": 0.0138,
+				"anomalia_hh_db": -0.175
+			},
+			{
+				"fecha_id": "2026-09-13_desc",
+				"marea_m": 0.179,
+				"manglar_inundado": 0.02,
+				"anomalia_hh_db": 0.236
+			},
+			{
+				"fecha_id": "2026-09-20_asc",
+				"marea_m": -0.073,
+				"manglar_inundado": 0.0183,
+				"anomalia_hh_db": 0.132
+			},
+			{
+				"fecha_id": "2026-09-25_desc",
+				"marea_m": -0.653,
+				"manglar_inundado": 0.015,
+				"anomalia_hh_db": -0.252
+			},
+			{
+				"fecha_id": "2026-10-02_asc",
+				"marea_m": 1.037,
+				"manglar_inundado": 0.0184,
+				"anomalia_hh_db": 0.172
+			},
+			{
+				"fecha_id": "2026-10-07_desc",
+				"marea_m": -0.653,
+				"manglar_inundado": 0.0163,
+				"anomalia_hh_db": -0.19
+			},
+			{
+				"fecha_id": "2026-10-14_asc",
+				"marea_m": 1.026,
+				"manglar_inundado": 0.0205,
+				"anomalia_hh_db": 0.429
+			},
+			{
+				"fecha_id": "2026-10-19_desc",
+				"marea_m": 0.275,
+				"manglar_inundado": 0.0188,
+				"anomalia_hh_db": 0.183
+			},
+			{
+				"fecha_id": "2026-10-26_asc",
+				"marea_m": 0.003,
+				"manglar_inundado": 0.0183,
+				"anomalia_hh_db": -0.0
+			}
+		]
+	},
+	"clases_fijas": {
+		"agua_permanente_ow": {
+			"n_muestras": 5205360,
+			"acierto": 0.9997,
+			"aprobada": true,
+			"peor_fecha": 0.9987
+		},
+		"tierra_firme_no_iv": {
+			"n_muestras": 1178510,
+			"acierto": 0.9177,
+			"aprobada": true
+		}
+	},
+	"muestras_opticas": null,
+	"exactitud": null,
+	"r_marea": 0.718,
+	"p_marea": 0.0002,
+	"cobertura_marea": {
+		"cobertura": 0.69,
+		"pleamar_rel": 0.806,
+		"p25_m": -0.565,
+		"p75_m": 0.555,
+		"min_pred_m": -1.315,
+		"max_pred_m": 1.386,
+		"min_obs_m": -0.746,
+		"max_obs_m": 1.118,
+		"n_alta": 5,
+		"n_media": 11,
+		"n_baja": 4,
+		"modelo": "GOT4.10_nc",
+		"punto": [-87.34361111, 12.61583333],
+		"desfase_min": 0.0
+	},
+	"manglar": {
+		"n_celdas": 2399,
+		"por_estado": {
+			"conectada": 28,
+			"estancada": 26,
+			"seca": 2345
+		},
+		"sensibles_a_la_marea": 1613,
+		"sens_db_m_mediana": 0.324
+	},
+	"advertencias": [
+		"Sin polígonos de zonas estables: la calibración usa vegetación densa y estable elegida automáticamente.",
+		"Sin DEM (D-06): la máscara de análisis no excluye pendientes.",
+		"Sin altura de dosel (D-05): todo el manglar va a un solo estrato (bajo).",
+		"NISAR observó como máximo el 81% de la pleamar predicha: el estado 'seca' puede deberse a mareas altas que no se observaron.",
+		"La marea es la del golfo abierto, sin desfase dentro del estero (desfase_min = 0).",
+		"Sin muestras ópticas etiquetadas: no se midió la exactitud global ni se ajustaron umbrales con ellas."
+	]
+}

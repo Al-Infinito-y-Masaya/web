@@ -1,0 +1,168 @@
+{
+	"celdas": [
+		{
+			"id": "c_005112",
+			"centroide": [-87.333774, 12.615599],
+			"pais": "NI",
+			"estrato": "bajo",
+			"en_mascara": true,
+			"metricas": {
+				"if": 0.0,
+				"if_alta": 0.0,
+				"if_baja": 0.0,
+				"n_fechas": 20,
+				"n_fechas_alta": 5,
+				"n_fechas_baja": 4,
+				"estado": "seca",
+				"p_error": 0.5,
+				"sens_db_m": 0.28,
+				"sens_p": 0.125
+			},
+			"cambio": null,
+			"serie": [
+				{
+					"fecha_id": "2026-06-21_desc",
+					"hh_db": -5.1,
+					"hv_db": -12.4,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-06-28_asc",
+					"hh_db": -7.2,
+					"hv_db": -13.3,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-07-03_desc",
+					"hh_db": -7.3,
+					"hv_db": -13.4,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-07-10_asc",
+					"hh_db": -7.3,
+					"hv_db": -13.4,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-07-15_desc",
+					"hh_db": -6.4,
+					"hv_db": -12.9,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-07-22_asc",
+					"hh_db": -8.0,
+					"hv_db": -13.6,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-07-27_desc",
+					"hh_db": -6.0,
+					"hv_db": -13.8,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-08-15_asc",
+					"hh_db": -7.8,
+					"hv_db": -13.9,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-08-20_desc",
+					"hh_db": -6.3,
+					"hv_db": -13.5,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-08-27_asc",
+					"hh_db": -8.3,
+					"hv_db": -14.2,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-09-01_desc",
+					"hh_db": -6.2,
+					"hv_db": -13.1,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-09-08_asc",
+					"hh_db": -9.0,
+					"hv_db": -14.2,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-09-13_desc",
+					"hh_db": -5.8,
+					"hv_db": -13.3,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-09-20_asc",
+					"hh_db": -8.3,
+					"hv_db": -14.0,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-09-25_desc",
+					"hh_db": -5.8,
+					"hv_db": -13.5,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-10-02_asc",
+					"hh_db": -7.0,
+					"hv_db": -13.7,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-10-07_desc",
+					"hh_db": -6.2,
+					"hv_db": -12.5,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-10-14_asc",
+					"hh_db": -7.2,
+					"hv_db": -13.5,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-10-19_desc",
+					"hh_db": -5.5,
+					"hv_db": -13.2,
+					"coherencia": null,
+					"clase": "NI"
+				},
+				{
+					"fecha_id": "2026-10-26_asc",
+					"hh_db": -6.7,
+					"hv_db": -13.8,
+					"coherencia": null,
+					"clase": "NI"
+				}
+			]
+		}
+	],
+	"bloque": "b_02_02",
+	"version": "0.2.0"
+}

@@ -3,6 +3,7 @@ node_modules/
 
 # build output
 dist/
+dist-experimental/
 dist-ssr/
 *.local
 

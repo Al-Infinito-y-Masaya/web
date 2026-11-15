@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-experimental/
 coverage/
 pnpm-lock.yaml
 src/app/routeTree.gen.ts

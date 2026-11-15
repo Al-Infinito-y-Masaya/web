@@ -8,6 +8,7 @@ export default tseslint.config(
 	{
 		ignores: [
 			'dist',
+			'dist-experimental',
 			'coverage',
 			'src/app/routeTree.gen.ts',
 			'src/shared/client/api-types.d.ts',
