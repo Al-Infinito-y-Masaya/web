@@ -105,8 +105,9 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 			: 'rgb'
 	);
 	const [playing, setPlaying] = useState(false);
-	// Consecutive dates of different orbits differ in brightness by geometry alone.
-	const [sameOrbit, setSameOrbit] = useState(initial.get('orbita') !== 'todas');
+	// The score is followed note by note; `?orbita=misma` steps within one orbit, whose
+	// dates share a viewing geometry (different orbits differ in brightness by geometry alone).
+	const [sameOrbit, setSameOrbit] = useState(initial.get('orbita') === 'misma');
 	const [mapStatus, setMapStatus] = useState<MapStatus>({ key: '', loading: true, error: false });
 	const [selected, setSelected] = useState<Cell | null>(null);
 	const [cellMessage, setCellMessage] = useState(
@@ -169,8 +170,8 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 		const url = new URL(window.location.href);
 		url.searchParams.set('fecha', current.fecha_id);
 		url.searchParams.set('capa', layer);
-		if (sameOrbit) url.searchParams.delete('orbita');
-		else url.searchParams.set('orbita', 'todas');
+		if (sameOrbit) url.searchParams.set('orbita', 'misma');
+		else url.searchParams.delete('orbita');
 		window.history.replaceState(null, '', url);
 	}, [current.fecha_id, layer, sameOrbit]);
 	useEffect(() => {
@@ -367,21 +368,31 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 								</dd>
 							</div>
 						</dl>
-						<label className="lab-orbit-toggle">
-							<input
-								type="checkbox"
-								checked={sameOrbit}
-								onChange={e => setSameOrbit(e.target.checked)}
-							/>
-							<span>
-								Avanzar en la misma órbita
-								<small>
-									Las pasadas ascendentes y descendentes miran el manglar desde
-									ángulos distintos: compararlas cambia el brillo aunque no cambie
-									el agua.
-								</small>
-							</span>
-						</label>
+						<div className="lab-orbit">
+							<p id="recorrido-titulo" className="lab-orbit-title">
+								Recorrido de la partitura
+							</p>
+							<div
+								className="lab-raster-switch lab-orbit-switch"
+								role="group"
+								aria-labelledby="recorrido-titulo"
+							>
+								<button
+									aria-pressed={!sameOrbit}
+									onClick={() => setSameOrbit(false)}
+								>
+									Nota por nota
+								</button>
+								<button aria-pressed={sameOrbit} onClick={() => setSameOrbit(true)}>
+									Misma órbita
+								</button>
+							</div>
+							<p className="exp-caption">
+								{sameOrbit
+									? `Salta a la siguiente pasada ${current.direccion === 'asc' ? 'ascendente' : 'descendente'}: compara el manglar siempre desde el mismo ángulo.`
+									: 'Sigue la partitura en orden. Ascendentes y descendentes se alternan y miran el manglar desde ángulos distintos: el brillo puede cambiar aunque no cambie el agua.'}
+							</p>
+						</div>
 						<div
 							className="lab-raster-switch"
 							role="group"

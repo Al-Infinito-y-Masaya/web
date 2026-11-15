@@ -203,27 +203,15 @@
 .lab-facts dd {
 	font-size: 16px;
 }
-.lab-orbit-toggle {
-	display: flex;
-	align-items: flex-start;
-	gap: 10px;
+.lab-orbit {
 	margin-top: 16px;
-	min-height: 44px;
-	cursor: pointer;
 }
-.lab-orbit-toggle input {
-	width: 20px;
-	height: 20px;
-	margin-top: 2px;
-	flex: none;
-	accent-color: var(--manglar-oceano);
-}
-.lab-orbit-toggle small {
-	display: block;
-	margin-top: 2px;
+.lab-orbit-title {
 	font-size: 12px;
-	line-height: 1.4;
 	color: var(--manglar-oceano);
+}
+.lab-orbit-switch {
+	margin: 6px 0 8px;
 }
 .lab-raster-switch {
 	display: flex;
