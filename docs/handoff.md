@@ -94,9 +94,66 @@ otros.
 - **Franja de manglar** al pie de los paneles laterales, solo si hay espacio
   libre debajo del contenido.
 - **Notas musicales:** en los espacios donde no tapan nada, con el mismo
-  acomodo en todas las pantallas (lo definió Jesy en "El ritmo").
+  acomodo en todas las pantallas (lo definió Jesy en "El ritmo"). En la web
+  van **animadas** (ver abajo).
 - **Camarones:** solo en la intro. En la app se quitaron porque cargaban
   demasiado.
+- **Raíces del manglar:** salen de la base del tronco y bajan en arcos hasta el
+  agua, como en el mangle rojo. Ya está así en `art.ts`.
+
+### Animación de las notas en los paneles
+
+Las notas que están sobre la franja de manglar **suben como si salieran de los
+árboles** y se van haciendo transparentes hasta desaparecer **antes de tocar el
+contenido de la tarjeta**. En Figma están quietas porque el prototipo no puede
+animarlas; la posición de Figma es su punto de partida.
+
+1. **Techo:** el borde inferior del último elemento visible del panel (texto,
+   tarjeta o botón) más 16 px. Ninguna nota pasa de ahí.
+2. **Recorrido:** cada nota sube desde su posición inicial hasta el techo. Si
+   el espacio libre es menor a 24 px, esa nota no se anima y se oculta.
+3. **Opacidad:** aparece de 0 a 100 % en el primer 15 % del recorrido, se
+   mantiene hasta la mitad y baja a 0 % justo al llegar al techo.
+4. **Movimiento:** sube con un leve vaivén (±6 px de lado y ±8° de giro), en
+   4 a 7 s por nota, con un retraso al azar de 0 a 3 s para que no salgan
+   todas juntas. Al terminar vuelve a empezar desde abajo.
+5. **El techo se recalcula** cuando cambia el contenido del panel (por ejemplo,
+   al abrir otra celda), con un `ResizeObserver`.
+6. **Accesibilidad:** las notas llevan `aria-hidden="true"` y
+   `pointer-events: none`, van debajo del contenido y, con
+   `prefers-reduced-motion`, se quedan quietas.
+7. **Rendimiento:** animar solo `transform` y `opacity`, y pausar la animación
+   cuando el panel no está visible.
+
+Ejemplo con CSS; el JavaScript solo calcula `--subida` (start - techo):
+
+```css
+.nota-flotante {
+	animation: nota-sube var(--duracion, 5s) ease-out var(--retraso, 0s) infinite;
+}
+@keyframes nota-sube {
+	0% {
+		transform: translate(0, 0) rotate(var(--giro-inicial, -8deg));
+		opacity: 0;
+	}
+	15% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		transform: translate(var(--deriva, 6px), calc(-1 * var(--subida)))
+			rotate(var(--giro-final, 8deg));
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.nota-flotante {
+		animation: none;
+	}
+}
+```
 
 ---
 
