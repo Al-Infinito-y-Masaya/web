@@ -153,7 +153,8 @@ export function ExperimentalMap({
 			if (e.sourceId === 'acquisition' && e.isSourceLoaded) setLoading(false);
 		});
 		m.on('dataloading', e => {
-			if (e.sourceId === 'acquisition' || e.sourceId === 'connectivity') setLoading(true);
+			if ('sourceId' in e && (e.sourceId === 'acquisition' || e.sourceId === 'connectivity'))
+				setLoading(true);
 		});
 		m.on('idle', () => setLoading(false));
 		m.on('click', e => callback.current(e.lngLat.lng, e.lngLat.lat));
