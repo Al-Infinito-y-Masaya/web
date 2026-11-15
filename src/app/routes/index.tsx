@@ -1,8 +1,5 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
-/** `/` sends signed-in users to the dashboard (and the guard sends everyone else to /login). */
-export const Route = createFileRoute('/')({
-	beforeLoad: () => {
-		throw redirect({ to: '/dashboard' });
-	}
-});
+import { Inicio } from '@/features/inicio/inicio';
+
+export const Route = createFileRoute('/')({ component: Inicio });

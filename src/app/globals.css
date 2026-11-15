@@ -3,111 +3,98 @@
 @import 'shadcn/tailwind.css';
 
 /*
- * Design tokens.
+ * Design tokens of Mangroove.
  *
- * Every color in the app comes from these CSS variables, so re-theming the
- * template means editing this file only. The names follow shadcn/ui, plus a
- * few status tones (success / warning / info) used by `Status` and alerts.
- * Generate a palette at https://ui.shadcn.com/themes and paste it here.
+ * Three groups that never mix:
+ *  1. Brand colors (`--manglar-*`), from the brand manual.
+ *  2. Semantic tokens (shadcn names), expressed with the brand colors, so the
+ *     shared primitives follow the identity without knowing about it.
+ *  3. Data colors (`--dato-*`). They mirror what the backend paints in the PNG
+ *     layers (`manifest.leyendas`) and are used only where the manifest cannot
+ *     be read (the story) or for classes it does not define (ND).
  */
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
-	--radius: 0.625rem;
+	--radius: 1rem;
 
-	--background: oklch(0.985 0.002 247);
-	--foreground: oklch(0.21 0.02 265);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.21 0.02 265);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.21 0.02 265);
-	--primary: oklch(0.51 0.23 277);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.96 0.01 265);
-	--secondary-foreground: oklch(0.27 0.03 265);
-	--muted: oklch(0.96 0.005 265);
-	--muted-foreground: oklch(0.52 0.02 265);
-	--accent: oklch(0.95 0.02 277);
-	--accent-foreground: oklch(0.36 0.15 277);
-	--destructive: oklch(0.58 0.22 27);
-	--destructive-foreground: oklch(0.985 0 0);
-	--border: oklch(0.91 0.008 265);
-	--input: oklch(0.88 0.01 265);
-	--ring: oklch(0.51 0.23 277);
+	/* 1. Brand */
+	--manglar-verde: #0d3b16;
+	--manglar-arena: #ead39d;
+	--manglar-olivo: #737f35;
+	--manglar-oceano: #233e45;
+	--manglar-carmesi: #52110f;
+	--manglar-papel: #f7f1e3;
+	--manglar-papel-hondo: #efe6cf;
+	--manglar-noche: #14262b;
+	/* Olive darkened until it reaches 4.5:1 on paper, for small text. */
+	--manglar-olivo-texto: #5c6628;
 
-	--success: oklch(0.95 0.05 155);
-	--success-foreground: oklch(0.45 0.13 155);
-	--warning: oklch(0.96 0.06 90);
-	--warning-border: oklch(0.82 0.15 85);
-	--warning-foreground: oklch(0.42 0.1 60);
-	--info: oklch(0.95 0.03 250);
-	--info-foreground: oklch(0.45 0.15 260);
+	/* 2. Semantic */
+	--background: var(--manglar-papel);
+	--foreground: var(--manglar-verde);
+	--card: #fbf7ec;
+	--card-foreground: var(--manglar-verde);
+	--popover: #fbf7ec;
+	--popover-foreground: var(--manglar-verde);
+	--primary: var(--manglar-verde);
+	--primary-foreground: var(--manglar-papel);
+	--secondary: var(--manglar-arena);
+	--secondary-foreground: var(--manglar-verde);
+	--muted: var(--manglar-papel-hondo);
+	--muted-foreground: var(--manglar-oceano);
+	--accent: var(--manglar-arena);
+	--accent-foreground: var(--manglar-verde);
+	--destructive: #9b2c1f;
+	--destructive-foreground: var(--manglar-papel);
+	--border: color-mix(in srgb, var(--manglar-olivo) 38%, transparent);
+	--input: color-mix(in srgb, var(--manglar-olivo) 55%, transparent);
+	--ring: var(--manglar-olivo);
 
-	--chart-1: oklch(0.51 0.23 277);
-	--chart-2: oklch(0.6 0.13 185);
-	--chart-3: oklch(0.7 0.16 60);
-	--chart-4: oklch(0.6 0.2 330);
-	--chart-5: oklch(0.55 0.02 265);
+	--success: #dfe8c8;
+	--success-foreground: var(--manglar-verde);
+	--warning: #f3dfa6;
+	--warning-border: #c99a1e;
+	--warning-foreground: #4f3a05;
+	--info: #dbe6e6;
+	--info-foreground: var(--manglar-oceano);
 
-	--sidebar: oklch(0.975 0.004 265);
-	--sidebar-foreground: oklch(0.3 0.02 265);
-	--sidebar-primary: oklch(0.51 0.23 277);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.93 0.02 277);
-	--sidebar-accent-foreground: oklch(0.36 0.15 277);
-	--sidebar-border: oklch(0.91 0.008 265);
-	--sidebar-ring: oklch(0.51 0.23 277);
-}
+	/* 3. Data */
+	--dato-iv: #199e70;
+	--dato-ow: #3987e5;
+	--dato-ni: #5c5b57;
+	--dato-nc: #d95926;
+	--dato-hh: #0f7f9e;
+	--dato-hv: #8a9a2e;
+	--dato-marea: #b8892b;
+	--dato-aviso: #e6a417;
 
-.dark {
-	--background: oklch(0.17 0.015 265);
-	--foreground: oklch(0.96 0.005 265);
-	--card: oklch(0.21 0.018 265);
-	--card-foreground: oklch(0.96 0.005 265);
-	--popover: oklch(0.21 0.018 265);
-	--popover-foreground: oklch(0.96 0.005 265);
-	--primary: oklch(0.68 0.17 277);
-	--primary-foreground: oklch(0.17 0.015 265);
-	--secondary: oklch(0.27 0.02 265);
-	--secondary-foreground: oklch(0.96 0.005 265);
-	--muted: oklch(0.26 0.018 265);
-	--muted-foreground: oklch(0.7 0.015 265);
-	--accent: oklch(0.3 0.06 277);
-	--accent-foreground: oklch(0.9 0.05 277);
-	--destructive: oklch(0.68 0.19 25);
-	--destructive-foreground: oklch(0.17 0.015 265);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.68 0.17 277);
-
-	--success: oklch(0.3 0.06 155);
-	--success-foreground: oklch(0.82 0.12 155);
-	--warning: oklch(0.32 0.06 80);
-	--warning-border: oklch(0.65 0.13 80);
-	--warning-foreground: oklch(0.9 0.08 90);
-	--info: oklch(0.3 0.06 260);
-	--info-foreground: oklch(0.85 0.08 260);
-
-	--chart-1: oklch(0.68 0.17 277);
-	--chart-2: oklch(0.7 0.12 185);
-	--chart-3: oklch(0.78 0.14 70);
-	--chart-4: oklch(0.7 0.17 330);
-	--chart-5: oklch(0.7 0.015 265);
-
-	--sidebar: oklch(0.19 0.016 265);
-	--sidebar-foreground: oklch(0.9 0.008 265);
-	--sidebar-primary: oklch(0.68 0.17 277);
-	--sidebar-primary-foreground: oklch(0.17 0.015 265);
-	--sidebar-accent: oklch(0.27 0.03 277);
-	--sidebar-accent-foreground: oklch(0.92 0.03 277);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.68 0.17 277);
+	--sombra-panel: 0 10px 30px -12px rgb(13 59 22 / 0.35);
+	--transicion: 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 @theme inline {
-	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-	--font-mono: 'JetBrains Mono', ui-monospace, monospace;
+	--font-sans: 'Jost', ui-sans-serif, system-ui, sans-serif;
+	--font-titulo: 'Josefin Sans', 'Jost', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+	--color-manglar-verde: var(--manglar-verde);
+	--color-manglar-arena: var(--manglar-arena);
+	--color-manglar-olivo: var(--manglar-olivo);
+	--color-manglar-olivo-texto: var(--manglar-olivo-texto);
+	--color-manglar-oceano: var(--manglar-oceano);
+	--color-manglar-carmesi: var(--manglar-carmesi);
+	--color-manglar-papel: var(--manglar-papel);
+	--color-manglar-papel-hondo: var(--manglar-papel-hondo);
+	--color-manglar-noche: var(--manglar-noche);
+
+	--color-dato-iv: var(--dato-iv);
+	--color-dato-ow: var(--dato-ow);
+	--color-dato-ni: var(--dato-ni);
+	--color-dato-nc: var(--dato-nc);
+	--color-dato-hh: var(--dato-hh);
+	--color-dato-hv: var(--dato-hv);
+	--color-dato-marea: var(--dato-marea);
+	--color-dato-aviso: var(--dato-aviso);
 
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -135,25 +122,14 @@
 	--color-warning-foreground: var(--warning-foreground);
 	--color-info: var(--info);
 	--color-info-foreground: var(--info-foreground);
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-ring: var(--sidebar-ring);
 
-	--radius-sm: calc(var(--radius) * 0.6);
-	--radius-md: calc(var(--radius) * 0.8);
+	--radius-sm: calc(var(--radius) * 0.5);
+	--radius-md: calc(var(--radius) * 0.75);
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) * 1.4);
-	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-xl: calc(var(--radius) * 1.25);
+	--radius-2xl: calc(var(--radius) * 1.6);
+
+	--shadow-panel: var(--sombra-panel);
 }
 
 @layer base {
@@ -163,16 +139,256 @@
 	html {
 		@apply font-sans antialiased;
 		color-scheme: light;
+		font-size: 16px;
 	}
-	html.dark {
-		color-scheme: dark;
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: color-mix(in srgb, var(--manglar-olivo) 60%, transparent) transparent;
 	}
 	body {
 		@apply bg-background text-foreground;
+		min-height: 100dvh;
 	}
-	code,
-	pre,
-	kbd {
-		@apply font-mono;
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-family: var(--font-titulo);
+		letter-spacing: 0.01em;
+		line-height: 1.12;
+	}
+	:focus-visible {
+		outline: 3px solid var(--manglar-olivo);
+		outline-offset: 2px;
+		border-radius: 6px;
+	}
+	.sobre-oscuro :focus-visible {
+		outline-color: var(--manglar-arena);
+	}
+	button,
+	[role='button'],
+	a {
+		touch-action: manipulation;
+	}
+}
+
+@layer components {
+	/* Paper: brand texture tiled over the paper color. Decorates frames, never data. */
+	.papel,
+	.panel {
+		background-color: var(--manglar-papel);
+		background-image: url('/marca/papel.webp');
+		background-size: 256px 256px;
+		background-blend-mode: multiply;
+	}
+
+	/* Crayon title: wobbly edge through the shared SVG filter (see CrayonFilters). */
+	.crayola {
+		filter: url('#crayola');
+	}
+	.crayola-suave {
+		filter: url('#crayola-suave');
+	}
+
+	/* Side panel over the map. Slightly uneven corners, like a torn sheet. */
+	.panel {
+		@apply text-foreground shadow-panel;
+		border: 1px solid color-mix(in srgb, var(--manglar-olivo) 45%, transparent);
+		border-radius: 22px 18px 24px 16px;
+	}
+
+	.tarjeta {
+		background: color-mix(in srgb, #fff 42%, var(--manglar-papel));
+		border: 1px solid color-mix(in srgb, var(--manglar-olivo) 35%, transparent);
+		border-radius: 16px;
+	}
+
+	.etiqueta {
+		@apply text-[0.8125rem] leading-snug text-manglar-olivo-texto;
+	}
+
+	/* Pill button family used across the app. */
+	.boton {
+		@apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-5 text-[0.95rem] font-medium transition-[background-color,color,transform,box-shadow] select-none;
+		transition-duration: 180ms;
+		font-family: var(--font-titulo);
+		padding-top: 0.2em;
+	}
+	.boton:active {
+		transform: translateY(1px);
+	}
+	.boton:disabled,
+	.boton[aria-disabled='true'] {
+		@apply pointer-events-none opacity-50;
+	}
+	.boton-primario {
+		@apply bg-manglar-verde text-manglar-papel;
+	}
+	.boton-primario:hover {
+		background: color-mix(in srgb, var(--manglar-verde) 86%, var(--manglar-olivo));
+	}
+	.boton-contorno {
+		@apply bg-[#fbf7ec] text-manglar-verde;
+		box-shadow: inset 0 0 0 1.5px var(--manglar-verde);
+	}
+	.boton-contorno:hover {
+		@apply bg-manglar-arena;
+	}
+	.boton-arena {
+		@apply bg-manglar-arena text-manglar-verde;
+	}
+	.boton-arena:hover {
+		background: color-mix(in srgb, var(--manglar-arena) 85%, var(--manglar-olivo));
+	}
+	.boton-fantasma {
+		@apply bg-transparent text-manglar-verde;
+	}
+	.boton-fantasma:hover {
+		@apply bg-manglar-arena/60;
+	}
+
+	/* Round control floating over the map. */
+	.control-mapa {
+		@apply inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-manglar-papel text-manglar-verde shadow-md transition-colors;
+		border: 1px solid color-mix(in srgb, var(--manglar-olivo) 45%, transparent);
+	}
+	.control-mapa:hover {
+		@apply bg-manglar-arena;
+	}
+	.control-mapa[aria-pressed='true'] {
+		@apply bg-manglar-verde text-manglar-papel;
+	}
+
+	/* Hatch for "datos insuficientes": state told by pattern, not only by color. */
+	.trama {
+		background-image: repeating-linear-gradient(45deg, #282828 0 2px, #9a9893 2px 6px);
+	}
+}
+
+/* Notes that rise from the mangrove strip of a panel (handoff §2). */
+.nota-flotante {
+	animation: nota-sube var(--duracion, 5s) ease-out var(--retraso, 0s) infinite;
+	will-change: transform, opacity;
+}
+@keyframes nota-sube {
+	0% {
+		transform: translate(0, 0) rotate(var(--giro-inicial, -8deg));
+		opacity: 0;
+	}
+	15% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		transform: translate(var(--deriva, 6px), calc(-1 * var(--subida, 60px)))
+			rotate(var(--giro-final, 8deg));
+		opacity: 0;
+	}
+}
+
+@keyframes pulso-nota {
+	0% {
+		transform: scale(1);
+	}
+	35% {
+		transform: scale(1.35);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+.pulso-nota {
+	animation: pulso-nota 420ms ease-out;
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
+@keyframes aparecer {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+.aparecer,
+[data-entra] {
+	animation: aparecer 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+[data-entra] {
+	animation-duration: 520ms;
+}
+
+/*
+ * Intro of the home screen. The camera starts under water, follows a shrimp
+ * and its shoal, and rises to the mangrove. `--intro-*` are set by the screen.
+ */
+.intro-camara {
+	animation: intro-camara 2400ms cubic-bezier(0.65, 0, 0.35, 1) 2600ms both;
+	will-change: transform;
+}
+@keyframes intro-camara {
+	from {
+		transform: translateY(-50%);
+	}
+	to {
+		transform: none;
+	}
+}
+.intro-nado {
+	animation: intro-nado var(--duracion, 4s) linear var(--retraso, 0s) both;
+	will-change: transform;
+}
+@keyframes intro-nado {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(calc(-100vw - 100%));
+	}
+}
+.intro-vaiven {
+	animation: intro-vaiven 900ms ease-in-out infinite alternate;
+}
+@keyframes intro-vaiven {
+	from {
+		transform: translateY(-5px) rotate(-1.5deg);
+	}
+	to {
+		transform: translateY(5px) rotate(1.5deg);
+	}
+}
+/* Three-frame sprite: the legs paddle while the shrimp crosses. */
+.camaron {
+	aspect-ratio: 400 / 174;
+	background: url('/marca/camaron.webp') 0 0 / 300% 100% no-repeat;
+	animation: camaron-nada 420ms steps(3) infinite;
+}
+@keyframes camaron-nada {
+	to {
+		background-position-x: 150%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nota-flotante,
+	.pulso-nota,
+	.aparecer,
+	[data-entra],
+	.intro-camara,
+	.intro-nado,
+	.intro-vaiven,
+	.camaron {
+		animation: none;
+	}
+	.nota-flotante {
+		opacity: 0.85;
+	}
+	* {
+		scroll-behavior: auto !important;
 	}
 }

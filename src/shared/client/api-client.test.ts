@@ -40,95 +40,82 @@ describe('APIClient', () => {
 	test('GET delegates request to path client', async () => {
 		const { pathClient, request } = makeClient();
 
-		const expected = {
-			data: {
-				results: []
-			}
-		};
+		const expected = { data: [] };
 
 		request.mockResolvedValue(expected);
 
 		const client = new APIClient(pathClient);
 
-		const result = await client.GET('/items');
+		const result = await client.GET('/regiones/');
 
 		expect(request).toHaveBeenCalledOnce();
 
-		expect(request).toHaveBeenCalledWith('get', '/items');
+		expect(request).toHaveBeenCalledWith('get', '/regiones/');
 
 		expect(result._unsafeUnwrap()).toBe(expected);
 	});
 
-	test('POST delegates body to path client', async () => {
+	test('GET delegates path and query params', async () => {
 		const { pathClient, request } = makeClient();
 
-		const expected = {
-			data: {
-				id: '550e8400-e29b-41d4-a716-446655440000',
-				name: 'Widget',
-				status: 'draft',
-				quantity: 1
-			}
-		};
+		const expected = { data: { id: 'c_458450_1428650' } };
 
 		request.mockResolvedValue(expected);
 
 		const client = new APIClient(pathClient);
 
-		const result = await client.POST('/items', {
-			body: {
-				name: 'Widget',
-				status: 'draft',
-				quantity: 1
+		const options = {
+			params: {
+				path: { region: 'estero_real', version: '1.3.0' },
+				query: { lon: -87.38, lat: 12.92 }
 			}
-		});
+		};
 
-		expect(request).toHaveBeenCalledWith('post', '/items', {
-			body: {
-				name: 'Widget',
-				status: 'draft',
-				quantity: 1
-			}
-		});
+		const result = await client.GET('/regiones/{region}/versiones/{version}/celdas/', options);
+
+		expect(request).toHaveBeenCalledWith(
+			'get',
+			'/regiones/{region}/versiones/{version}/celdas/',
+			options
+		);
 
 		expect(result._unsafeUnwrap()).toBe(expected);
 	});
 
-	test('PATCH delegates path params and body', async () => {
+	test('POST delegates path params and body', async () => {
 		const { pathClient, request } = makeClient();
 
-		const expected = {
-			data: {
-				id: '550e8400-e29b-41d4-a716-446655440000',
-				name: 'Gadget'
-			}
-		};
+		const expected = { data: { exploracion: true } };
 
 		request.mockResolvedValue(expected);
 
 		const client = new APIClient(pathClient);
 
-		const result = await client.PATCH('/items/{id}', {
-			params: {
-				path: {
-					id: '550e8400-e29b-41d4-a716-446655440000'
-				}
-			},
+		const options = {
+			params: { path: { region: 'estero_real', version: '1.3.0' } },
 			body: {
-				name: 'Gadget'
+				ow_hh_db: null,
+				ow_hv_db: null,
+				iv_hh_db: null,
+				iv_ratio_db: null,
+				marea_alta_m: null,
+				lluvia_max_mm: null,
+				if_alta_desconectada: 0.3,
+				min_fechas_alta: null,
+				mayoria: null
 			}
-		});
+		};
 
-		expect(request).toHaveBeenCalledWith('patch', '/items/{id}', {
-			params: {
-				path: {
-					id: '550e8400-e29b-41d4-a716-446655440000'
-				}
-			},
-			body: {
-				name: 'Gadget'
-			}
-		});
+		const result = await client.POST(
+			'/regiones/{region}/versiones/{version}/exploraciones/',
+			options
+		);
+
+		expect(request).toHaveBeenCalledWith(
+			'post',
+			'/regiones/{region}/versiones/{version}/exploraciones/',
+			options
+		);
 
 		expect(result._unsafeUnwrap()).toBe(expected);
 	});
@@ -136,62 +123,30 @@ describe('APIClient', () => {
 	test('DELETE delegates path params', async () => {
 		const { pathClient, request } = makeClient();
 
-		const expected = {
-			data: undefined
-		};
+		const expected = { data: undefined };
 
 		request.mockResolvedValue(expected);
 
 		const client = new APIClient(pathClient);
 
-		const result = await client.DELETE('/items/{id}', {
-			params: {
-				path: {
-					id: '550e8400-e29b-41d4-a716-446655440000'
-				}
-			}
-		});
+		const options = { params: { path: { id: 7 } } };
 
-		expect(request).toHaveBeenCalledWith('delete', '/items/{id}', {
-			params: {
-				path: {
-					id: '550e8400-e29b-41d4-a716-446655440000'
-				}
-			}
-		});
+		const result = await client.DELETE('/auth/group/{id}/', options);
+
+		expect(request).toHaveBeenCalledWith('delete', '/auth/group/{id}/', options);
 
 		expect(result._unsafeUnwrap()).toBe(expected);
 	});
 
-	// test('PUT delegates path params and body', async () => {
-	//     const { pathClient, request } = makeClient();
+	test('turns a rejected request into an Err', async () => {
+		const { pathClient, request } = makeClient();
 
-	//     request.mockResolvedValue({
-	//         data: {}
-	//     });
+		request.mockRejectedValue(new Error('boom'));
 
-	//     const client = new APIClient(pathClient);
+		const client = new APIClient(pathClient);
 
-	//     await client.PATCH('/auth/user/{id}/', {
-	//         params: {
-	//             path: {
-	//                 id: '550e8400-e29b-41d4-a716-446655440000'
-	//             }
-	//         },
-	//         body: {
-	//             username: 'testuser'
-	//         }
-	//     });
+		const result = await client.GET('/regiones/');
 
-	//     expect(request).toHaveBeenCalledWith('patch', '/auth/user/{id}/', {
-	//         params: {
-	//             path: {
-	//                 id: '550e8400-e29b-41d4-a716-446655440000'
-	//             }
-	//         },
-	//         body: {
-	//             username: 'testuser'
-	//         }
-	//     });
-	// });
+		expect(result.isErr()).toBe(true);
+	});
 });

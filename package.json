@@ -1,9 +1,9 @@
 {
-	"name": "frontend-factory",
+	"name": "mangroove-web",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"description": "React + TypeScript frontend template: Vite, TanStack Router & Query, Tailwind CSS v4, shadcn/ui, React Hook Form + Zod and a typed OpenAPI client.",
+	"description": "Mangroove: aplicación web pública que muestra qué manglares del Estero Real siguen recibiendo la marea, con datos del radar NISAR.",
 	"packageManager": "pnpm@11.0.0",
 	"engines": {
 		"node": ">=22"
