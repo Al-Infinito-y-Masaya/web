@@ -300,6 +300,27 @@ export const es = {
 		}
 	},
 
+	umbrales: {
+		titulo: 'Explorar con otros umbrales',
+		intro: 'Mové un umbral para ver cuánto cambia el mapa. Es una exploración: no se guarda ni cambia la versión publicada.',
+		desconexion: 'Posible desconexión',
+		minimo: 'Mínimo de pasadas en marea alta',
+		mareaAlta: 'Marea alta',
+		menosDe: (valor: string) => `menos de ${valor}`,
+		desde: (valor: string) => `desde ${valor}`,
+		publicado: (valor: string) => `En la versión publicada: ${valor}`,
+		aplicar: 'Recalcular',
+		volver: 'Volver a la versión publicada',
+		esExploracion: 'Estás viendo una exploración',
+		resultado: (desconectada: string, manglar: string, insuficiente: string) =>
+			`Con estos umbrales, ${desconectada} de ${manglar} de manglar quedarían como posible desconexión y ${insuficiente} con datos insuficientes.`,
+		sinConexion: 'La exploración necesita conexión con el servidor.',
+		error: {
+			limite: 'Se alcanzó el límite de exploraciones por ahora. Esperá un momento y volvé a intentar; la versión publicada sigue disponible.',
+			rango: 'Uno de los umbrales está fuera del rango permitido.',
+			otro: 'No se pudo calcular la exploración. El mapa sigue mostrando la versión publicada.'
+		}
+	},
 	resumen: {
 		titulo: 'Resumen por país',
 		pais: 'País',

@@ -282,6 +282,27 @@ export const en: Textos = {
 		}
 	},
 
+	umbrales: {
+		titulo: 'Explore with other thresholds',
+		intro: 'Move a threshold to see how much the map changes. It is an exploration: it is not saved and does not change the published version.',
+		desconexion: 'Possible disconnection',
+		minimo: 'Minimum high-tide passes',
+		mareaAlta: 'High tide',
+		menosDe: valor => `below ${valor}`,
+		desde: valor => `from ${valor}`,
+		publicado: valor => `In the published version: ${valor}`,
+		aplicar: 'Recompute',
+		volver: 'Back to the published version',
+		esExploracion: 'You are viewing an exploration',
+		resultado: (desconectada, manglar, insuficiente) =>
+			`With these thresholds, ${desconectada} of ${manglar} of mangrove would be a possible disconnection and ${insuficiente} would have insufficient data.`,
+		sinConexion: 'The exploration needs a connection to the server.',
+		error: {
+			limite: 'The exploration limit was reached for now. Wait a moment and try again; the published version is still available.',
+			rango: 'One of the thresholds is outside the allowed range.',
+			otro: 'The exploration could not be computed. The map still shows the published version.'
+		}
+	},
 	resumen: {
 		titulo: 'Summary by country',
 		pais: 'Country',

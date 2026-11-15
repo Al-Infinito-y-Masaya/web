@@ -11,6 +11,7 @@ import {
 	descargaSchema,
 	estanqueSchema,
 	estanquesGeojsonSchema,
+	exploracionSchema,
 	hipotesisSchema,
 	manifiestoSchema,
 	metodoSchema,
@@ -20,11 +21,13 @@ import {
 	type Celda,
 	type Descarga,
 	type Estanque,
+	type Exploracion,
 	type Hipotesis,
 	type Manifiesto,
 	type Metodo,
 	type Region,
-	type Resumen
+	type Resumen,
+	type UmbralesExplorados
 } from './esquemas';
 
 /**
@@ -241,4 +244,33 @@ export function urlResumenCsv(ctx: Contexto) {
 	return ctx.origen === 'api'
 		? `${env.apiUrl}/regiones/${ctx.region}/versiones/${ctx.version}/resumen/?formato=csv`
 		: `${env.backupUrl}/${ctx.region}/${ctx.version}/resumen_csv.csv`;
+}
+
+/**
+ * Recomputes the disconnection with other thresholds over the same version.
+ * The result is an exploration: it is not stored and never replaces the
+ * published version. The API rate-limits it (429) and validates ranges (422).
+ */
+export function explorarUmbrales(
+	ctx: Contexto,
+	umbrales: UmbralesExplorados
+): ResultAsync<Exploracion, AppError> {
+	if (ctx.origen === 'respaldo') return sinRespaldo();
+	return client
+		.POST('/regiones/{region}/versiones/{version}/exploraciones/', {
+			params: { path: versionPath(ctx) },
+			// Thresholds left as null keep the value of the version's profile.
+			body: {
+				ow_hh_db: null,
+				ow_hv_db: null,
+				iv_hh_db: null,
+				iv_ratio_db: null,
+				marea_alta_m: umbrales.marea_alta_m ?? null,
+				lluvia_max_mm: null,
+				if_alta_desconectada: umbrales.if_alta_desconectada ?? null,
+				min_fechas_alta: umbrales.min_fechas_alta ?? null,
+				mayoria: null
+			}
+		})
+		.andThen(({ data }) => parse(exploracionSchema)(data));
 }

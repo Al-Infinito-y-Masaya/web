@@ -67,7 +67,7 @@ pnpm build
 
 ## Pendiente
 
-- Explorar con otros umbrales (`POST …/exploraciones/`) y comparador de sensores.
+- Comparador de sensores: el esquema OpenAPI no trae la ruta `/sensores/`.
 - «Inundación esperada» (`if_esperada`) todavía no tiene lugar en el inspector.
 - Intro animada del diseño; hoy la portada es estática.
 - Textos del relato y versión en inglés, sin validar con el equipo.

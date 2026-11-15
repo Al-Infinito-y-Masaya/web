@@ -275,3 +275,26 @@ export type Descarga = z.infer<typeof descargaSchema>;
 
 /** Pointer the engine leaves on the CDN: `{region}/vigente.json`. */
 export const vigenteSchema = z.object({ region: z.string(), version: z.string() });
+
+/** Thresholds a visitor may change in an exploration, with the ranges the API accepts. */
+export type UmbralesExplorados = {
+	if_alta_desconectada?: number;
+	min_fechas_alta?: number;
+	marea_alta_m?: number;
+};
+
+export const exploracionSchema = z.object({
+	exploracion: z.literal(true),
+	huella: z.string(),
+	version: z.string(),
+	capas: z.object({ desconexion: z.string() }),
+	resumen: z.array(
+		z.object({
+			pais: z.string(),
+			ha_manglar: z.number(),
+			ha_desconectada: z.number(),
+			ha_insuficiente: z.number()
+		})
+	)
+});
+export type Exploracion = z.infer<typeof exploracionSchema>;

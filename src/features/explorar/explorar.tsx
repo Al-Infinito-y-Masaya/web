@@ -1,16 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { ChevronDown, ChevronUp, LocateFixed, Minus, Plus, RotateCw, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { env } from '@/config/env';
 import {
+	explorarUmbrales,
 	urlDeCapa,
 	type ClaseEstanque,
 	type Contexto,
 	type OrdenEstanques
 } from '@/features/datos/api';
 import { excluidaPorLluvia, indiceDeFecha, rangoDeMarea, sinMarea } from '@/features/datos/dominio';
-import type { Estanque, Fecha, Manifiesto } from '@/features/datos/esquemas';
+import type { Estanque, Fecha, Manifiesto, UmbralesExplorados } from '@/features/datos/esquemas';
 import { EstadoSesion } from '@/features/datos/estado-sesion';
 import { datos } from '@/features/datos/servicio';
 import { useSesion } from '@/features/datos/sesion';
@@ -27,6 +28,7 @@ import { FranjaManglar } from '@/features/marca/marca';
 import { sonido } from '@/features/partitura/sonido';
 import { useMediaQuery } from '@/shared/hooks/use-media-query';
 import { AppException } from '@/shared/models/app-error/app-error';
+import { unwrapOrThrow } from '@/shared/models/result/result';
 import { Spinner } from '@/shared/ui/primitives/spinner';
 import { cn } from '@/shared/utils';
 
@@ -46,6 +48,7 @@ import {
 } from './leyendas';
 import { PanelEstanques, PanelRitmo, PanelSintonia } from './paneles';
 import { Reproductor } from './reproductor';
+import { ExplorarUmbrales } from './umbrales';
 
 export type CambiarBusqueda = (
 	cambios: Partial<Busqueda>,
@@ -238,6 +241,10 @@ function Vista({
 	const faltaMarea = sinMarea(m);
 	const solo = busqueda.solo === true && !faltaMarea;
 	const filtroDisponible = useMemo(() => sePuedeFiltrarConectadas(m), [m]);
+	const exploracion = useMutation({
+		mutationFn: (umbrales: UmbralesExplorados) => unwrapOrThrow(explorarUmbrales(ctx, umbrales))
+	});
+	const explorado = modo === 'sintonia' ? (exploracion.data ?? null) : null;
 	const [reintento, setReintento] = useState(0);
 	const [estados, setEstados] = useState<Record<string, EstadoCapa>>({});
 	const alEstado = useCallback((id: string, estado: EstadoCapa) => {
@@ -254,6 +261,11 @@ function Vista({
 		if (modo === 'ritmo' && fechaA) {
 			agregar(`A:${fechaA.id}:${capa}`, fechaA.capas[capa]);
 			if (fechaB) agregar(`B:${fechaB.id}:${capa}`, fechaB.capas[capa], { lado: 'derecha' });
+		} else if (modo === 'sintonia' && explorado) {
+			// An exploration only produces the disconnection layer.
+			agregar(`exploracion:${explorado.huella}`, explorado.capas.desconexion, {
+				filtro: solo && filtroDisponible ? `url(#${FILTRO_SOLO_DESCONEXION})` : undefined
+			});
 		} else if (modo === 'sintonia') {
 			const tipo = faltaMarea ? 'if' : solo ? 'desconexion' : 'if_alta';
 			agregar(`conectividad:${tipo}`, m.capas[tipo], {
@@ -271,7 +283,8 @@ function Vista({
 		filtroDisponible,
 		m.capas,
 		ctx.origen,
-		reintento
+		reintento,
+		explorado
 	]);
 
 	const fallo = capas.some(c => estados[c.id] === 'error');
@@ -376,8 +389,8 @@ function Vista({
 			: modo === 'sintonia'
 				? faltaMarea
 					? t.campos.ifTotal
-					: solo
-						? t.sintonia.solo
+					: solo || explorado
+						? t.leyenda.desconexion.titulo
 						: t.campos.ifAlta
 				: t.estanques.titulo;
 	const rotulo = (fecha: Fecha) =>
@@ -470,6 +483,9 @@ function Vista({
 					{t.mapa.sinConexionDetalle}
 				</AvisoMapa>
 			)}
+			{explorado && (
+				<AvisoMapa titulo={t.umbrales.esExploracion}>{t.umbrales.intro}</AvisoMapa>
+			)}
 			{sinPublicar && (
 				<AvisoMapa titulo={t.mapa.capaSinPublicar}>
 					{t.mapa.capaSinPublicarDetalle}
@@ -543,6 +559,18 @@ function Vista({
 				solo={solo}
 				onSolo={valor => onBusqueda({ solo: valor || undefined })}
 				filtroDisponible={filtroDisponible}
+				explorando={explorado !== null}
+				exploracion={
+					<ExplorarUmbrales
+						manifiesto={m}
+						resultado={explorado}
+						cargando={exploracion.isPending}
+						error={exploracion.error}
+						disponible={ctx.origen === 'api'}
+						onAplicar={exploracion.mutate}
+						onSalir={exploracion.reset}
+					/>
+				}
 			/>
 		) : (
 			<PanelEstanques

@@ -264,13 +264,19 @@ export function PanelSintonia({
 	ctx,
 	solo,
 	onSolo,
-	filtroDisponible
+	filtroDisponible,
+	explorando,
+	exploracion
 }: {
 	manifiesto: Manifiesto;
 	ctx: Contexto;
 	solo: boolean;
 	onSolo: (solo: boolean) => void;
 	filtroDisponible: boolean;
+	/** The thresholds exploration, rendered at the foot of the panel. */
+	exploracion: ReactNode;
+	/** An exploration is on the map: it shows connection states, not the frequency ramp. */
+	explorando: boolean;
 }) {
 	const { t } = useIdioma();
 	const faltaMarea = sinMarea(manifiesto);
@@ -296,20 +302,23 @@ export function PanelSintonia({
 					<span className="font-medium">{t.sintonia.solo}</span>
 				</label>
 			)}
-			{solo && !faltaMarea ? (
+			{(solo || explorando) && !faltaMarea ? (
 				<>
 					<LeyendaDesconexion
 						manifiesto={manifiesto}
-						soloDesconexion={filtroDisponible}
+						soloDesconexion={solo && filtroDisponible}
 					/>
-					<p className="etiqueta">
-						{filtroDisponible ? t.sintonia.soloAyuda : t.sintonia.soloSinFiltro}
-					</p>
+					{solo && (
+						<p className="etiqueta">
+							{filtroDisponible ? t.sintonia.soloAyuda : t.sintonia.soloSinFiltro}
+						</p>
+					)}
 				</>
 			) : (
 				<LeyendaFrecuencia manifiesto={manifiesto} capa={faltaMarea ? 'if' : 'if_alta'} />
 			)}
 			<ResumenPais ctx={ctx} />
+			{!faltaMarea && exploracion}
 		</>
 	);
 }
