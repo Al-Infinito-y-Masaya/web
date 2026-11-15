@@ -9,7 +9,7 @@ import '@/app/globals.css';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<IdiomaProvider inicial="es">
+		<IdiomaProvider>
 			<ExperimentalApp />
 		</IdiomaProvider>
 	</StrictMode>

@@ -1,6 +1,8 @@
 import proj4 from 'proj4';
 import { z } from 'zod';
 
+import type { TextosLab } from './textos';
+
 const finite = z.number().finite();
 const nullable = finite.nullable();
 const fraction = finite.min(0).max(1).nullable();
@@ -237,21 +239,25 @@ export async function loadCell(dataset: Dataset, lon: number, lat: number): Prom
 		throw new Error('La serie no corresponde a las fechas de la publicación.');
 	return cell;
 }
-export function formatP(value: number | null) {
-	return value === null
-		? 'Sin estimación'
-		: value === 0
-			? '< 0,0001'
-			: value.toLocaleString('es-NI', { maximumFractionDigits: 4, minimumFractionDigits: 4 });
-}
-export function percent(value: number | null) {
-	return value === null
-		? 'Sin dato'
-		: `${(value * 100).toLocaleString('es-NI', { maximumFractionDigits: 2 })} %`;
-}
-export const stateLabels = {
-	conectada: 'Respuesta compatible con conexión',
-	seca: 'Baja frecuencia de inundación observada',
-	estancada: 'Inundación persistente observada',
-	datos_insuficientes: 'Datos insuficientes'
+type FormatoNumeros = Pick<TextosLab, 'locale' | 'sinDato' | 'sinEstimacion' | 'pMinima'>;
+const FORMATO_ES: FormatoNumeros = {
+	locale: 'es-NI',
+	sinDato: 'Sin dato',
+	sinEstimacion: 'Sin estimación',
+	pMinima: '< 0,0001'
 };
+export function formatP(value: number | null, f: FormatoNumeros = FORMATO_ES) {
+	return value === null
+		? f.sinEstimacion
+		: value === 0
+			? f.pMinima
+			: value.toLocaleString(f.locale, {
+					maximumFractionDigits: 4,
+					minimumFractionDigits: 4
+				});
+}
+export function percent(value: number | null, f: FormatoNumeros = FORMATO_ES) {
+	if (value === null) return f.sinDato;
+	const numero = (value * 100).toLocaleString(f.locale, { maximumFractionDigits: 2 });
+	return f.locale.startsWith('es') ? `${numero} %` : `${numero}%`;
+}

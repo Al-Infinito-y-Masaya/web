@@ -26,23 +26,22 @@ import {
 
 import { rangoDeMarea } from '@/features/datos/dominio';
 import { Reproductor } from '@/features/explorar/reproductor';
-import { useIdioma } from '@/features/idioma/idioma';
 import { FranjaManglar } from '@/features/marca/marca';
 import { sonido } from '@/features/partitura/sonido';
+import { cn } from '@/shared/utils/index';
 
 import { assetUrl, formatP, loadCell, percent, type Cell, type Dataset, type Site } from './data';
 import { Inspector, Legend } from './details';
-import { layerLabels, type Layer, type MapStatus } from './layers';
+import { LAYERS, type Layer, type MapStatus } from './layers';
 import { MapBoundary } from './map-boundary';
 import { neighborDates, stepDate } from './stepping';
+import { useLab } from './textos';
 import { timelineData } from './timeline';
 
 const ExperimentalMap = lazy(() =>
 	import('./map').then(module => ({ default: module.ExperimentalMap }))
 );
 
-const number = (v: number | null, n = 3) =>
-	v === null ? 'Sin dato' : v.toLocaleString('es-NI', { maximumFractionDigits: n });
 type WidgetId = 'pass' | 'layers' | 'cell' | 'quality' | 'tide' | 'data';
 function Widget({
 	title,
@@ -86,7 +85,7 @@ function Widget({
 
 export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] }) {
 	const { manifest: m, quality: q, site } = dataset;
-	const { fmt } = useIdioma();
+	const { t, idioma, setIdioma, fmt, numero: number } = useLab();
 	const score = useMemo(() => timelineData(m), [m]);
 	const range = useMemo(() => rangoDeMarea(score.fechas), [score]);
 	const initial = new URLSearchParams(window.location.search);
@@ -100,9 +99,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 				)
 	);
 	const [layer, setLayer] = useState<Layer>(() =>
-		Object.hasOwn(layerLabels, initial.get('capa') ?? '')
-			? (initial.get('capa') as Layer)
-			: 'rgb'
+		LAYERS.includes(initial.get('capa') as Layer) ? (initial.get('capa') as Layer) : 'rgb'
 	);
 	const [playing, setPlaying] = useState(false);
 	// The score is followed note by note; `?orbita=misma` steps within one orbit, whose
@@ -110,9 +107,9 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 	const [sameOrbit, setSameOrbit] = useState(initial.get('orbita') === 'misma');
 	const [mapStatus, setMapStatus] = useState<MapStatus>({ key: '', loading: true, error: false });
 	const [selected, setSelected] = useState<Cell | null>(null);
-	const [cellMessage, setCellMessage] = useState(
-		'Elegí un punto del mapa para conocer su respuesta a la marea.'
-	);
+	const [cellMessage, setCellMessage] = useState<
+		'elegir' | 'cargando' | 'fuera' | 'error' | 'otra'
+	>('elegir');
 	const [busy, setBusy] = useState(false);
 	const [widgets, setWidgets] = useState<Record<WidgetId, boolean>>({
 		pass: true,
@@ -184,15 +181,14 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 		setBusy(true);
 		setSelected(null);
 		open('cell', true);
-		setCellMessage('Cargando la celda…');
+		setCellMessage('cargando');
 		try {
 			const cell = await loadCell(dataset, lon, lat);
 			if (id !== request.current) return;
 			setSelected(cell);
-			setCellMessage(cell ? '' : 'Este punto está fuera de la grilla del análisis.');
-		} catch (e) {
-			if (id === request.current)
-				setCellMessage(e instanceof Error ? e.message : 'No se pudo cargar la celda.');
+			if (!cell) setCellMessage('fuera');
+		} catch {
+			if (id === request.current) setCellMessage('error');
 		} finally {
 			if (id === request.current) setBusy(false);
 		}
@@ -203,56 +199,56 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 	}
 	const controls = [
 		{
-			name: 'Marea · clases',
+			name: t.calidad.mareaClases,
 			passed: q.prueba_marea.clases.aprobada,
-			evidence: `r ${number(q.prueba_marea.clases.r)} · p ${formatP(q.prueba_marea.clases.p)}`
+			evidence: `r ${number(q.prueba_marea.clases.r)} · p ${formatP(q.prueba_marea.clases.p, t)}`
 		},
 		{
-			name: 'Marea · señal HH',
+			name: t.calidad.mareaHh,
 			passed: q.prueba_marea.senal_hh.aprobada,
-			evidence: `r ${number(q.prueba_marea.senal_hh.r)} · p ${formatP(q.prueba_marea.senal_hh.p)}`
+			evidence: `r ${number(q.prueba_marea.senal_hh.r)} · p ${formatP(q.prueba_marea.senal_hh.p, t)}`
 		},
 		{
-			name: 'Agua permanente',
+			name: t.calidad.agua,
 			passed: q.clases_fijas.agua_permanente_ow.aprobada,
-			evidence: percent(q.clases_fijas.agua_permanente_ow.acierto)
+			evidence: percent(q.clases_fijas.agua_permanente_ow.acierto, t)
 		},
 		{
-			name: 'Tierra firme',
+			name: t.calidad.tierra,
 			passed: q.clases_fijas.tierra_firme_no_iv.aprobada,
-			evidence: percent(q.clases_fijas.tierra_firme_no_iv.acierto)
+			evidence: percent(q.clases_fijas.tierra_firme_no_iv.acierto, t)
 		}
 	];
 	return (
 		<>
 			<header className="papel lab-header">
-				<a href="https://mangroove.earth" aria-label="Mangroove, ir al inicio">
+				<a href="https://mangroove.earth" aria-label={t.header.inicio}>
 					<img
 						src={`${import.meta.env.BASE_URL}marca/mangroove.svg`}
 						alt=""
 						className="lab-logo"
 					/>
 				</a>
-				<nav aria-label="Secciones" className="lab-nav">
+				<nav aria-label={t.header.secciones} className="lab-nav">
 					<a className="boton boton-fantasma" href="https://mangroove.earth/historia">
-						Historia
+						{t.header.historia}
 					</a>
 					<a
 						className="boton boton-fantasma bg-manglar-arena"
 						href={`/laboratorio/${site.id}`}
 						aria-current="page"
 					>
-						Explorar
+						{t.header.explorar}
 					</a>
 					<a className="boton boton-fantasma" href="https://mangroove.earth/metodo">
-						Método y datos
+						{t.header.metodo}
 					</a>
 				</nav>
 				<label className="lab-site">
 					<MapPin size={17} aria-hidden />
-					<span className="sr-only">Estuario</span>
+					<span className="sr-only">{t.header.estuario}</span>
 					<select
-						aria-label="Estuario"
+						aria-label={t.header.estuario}
 						value={site.id}
 						onChange={e => {
 							setPlaying(false);
@@ -280,13 +276,32 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 					}}
 				>
 					{copied ? <Check size={17} aria-hidden /> : <Share2 size={17} aria-hidden />}
-					<span>{copied ? 'Copiado' : 'Compartir'}</span>
+					<span>{copied ? t.header.copiado : t.header.compartir}</span>
 				</button>
+				<div role="group" aria-label={t.header.idioma} className="lab-idioma">
+					{(['es', 'en'] as const).map(codigo => (
+						<button
+							key={codigo}
+							type="button"
+							lang={codigo}
+							aria-pressed={idioma === codigo}
+							onClick={() => setIdioma(codigo)}
+							className={cn(
+								'min-h-8 min-w-9 cursor-pointer rounded-full px-2 pt-0.5 font-titulo text-sm font-semibold uppercase transition-colors',
+								idioma === codigo
+									? 'bg-manglar-verde text-manglar-papel'
+									: 'text-manglar-verde hover:bg-manglar-arena/60'
+							)}
+						>
+							{codigo}
+						</button>
+					))}
+				</div>
 			</header>
 			{shareError && (
 				<p className="lab-share-error" role="status">
-					No se pudo copiar el enlace. Podés copiar la dirección del navegador.
-					<button onClick={() => setShareError(false)} aria-label="Cerrar aviso">
+					{t.header.compartirError}
+					<button onClick={() => setShareError(false)} aria-label={t.header.cerrarAviso}>
 						<X size={16} />
 					</button>
 				</p>
@@ -297,7 +312,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 						<Suspense
 							fallback={
 								<p className="exp-map-message" role="status">
-									Preparando el mapa…
+									{t.mapa.preparando}
 								</p>
 							}
 						>
@@ -314,10 +329,10 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 						</Suspense>
 					</MapBoundary>
 				</div>
-				<div className="lab-modes papel" role="group" aria-label="Modos de exploración">
+				<div className="lab-modes papel" role="group" aria-label={t.modos.grupo}>
 					<button aria-pressed={temporal} onClick={() => chooseLayer('rgb')}>
 						<Music2 size={17} aria-hidden />
-						El ritmo
+						{t.modos.ritmo}
 					</button>
 					<button
 						aria-pressed={!temporal}
@@ -327,22 +342,18 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 						}}
 					>
 						<Waves size={17} aria-hidden />
-						En sintonía / fuera de ritmo
+						{t.modos.sintonia}
 					</button>
 				</div>
-				<aside className="panel lab-sidebar" aria-label="Widgets del estuario">
+				<aside className="panel lab-sidebar" aria-label={t.sidebar.aria}>
 					<div className="lab-sidebar-title">
-						<h1>{temporal ? 'El ritmo' : 'La respuesta a la marea'}</h1>
-						<p>
-							{temporal
-								? 'Elegí una pasada en la partitura para ver el radar y escuchar la marea.'
-								: 'Explorá cómo cambia la inundación del manglar entre las mareas.'}
-						</p>
+						<h1>{temporal ? t.modos.ritmo : t.sidebar.tituloRespuesta}</h1>
+						<p>{temporal ? t.sidebar.introRitmo : t.sidebar.introRespuesta}</p>
 					</div>
 					<Widget
-						title="La pasada"
+						title={t.pasada.titulo}
 						icon={Music2}
-						summary={`${fmt.fechaLarga(current.hora_utc, 'America/Managua')} · ${current.marea_nivel}`}
+						summary={`${fmt.fechaLarga(current.hora_utc, 'America/Managua')} · ${t.nivel[current.marea_nivel]}`}
 						open={widgets.pass}
 						onOpen={v => open('pass', v)}
 					>
@@ -350,27 +361,29 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 							{fmt.fechaLarga(current.hora_utc, 'America/Managua')}
 						</p>
 						<p className="exp-caption">
-							{fmt.hora(current.hora_utc, 'America/Managua')}, hora local de{' '}
-							{site.nombre}
+							{t.pasada.horaLocal(
+								fmt.hora(current.hora_utc, 'America/Managua'),
+								site.nombre
+							)}
 						</p>
 						<dl className="lab-facts">
 							<div>
-								<dt>Órbita</dt>
+								<dt>{t.pasada.orbita}</dt>
 								<dd>
-									{current.direccion === 'asc' ? 'Ascendente' : 'Descendente'} ·
-									pista {current.pista}
+									{current.direccion === 'asc' ? t.pasada.asc : t.pasada.desc} ·{' '}
+									{t.pasada.pista(current.pista)}
 								</dd>
 							</div>
 							<div>
-								<dt>Marea estimada</dt>
+								<dt>{t.pasada.mareaEstimada}</dt>
 								<dd>
-									{number(current.marea_m)} m · {current.marea_nivel}
+									{number(current.marea_m)} m · {t.nivel[current.marea_nivel]}
 								</dd>
 							</div>
 						</dl>
 						<div className="lab-orbit">
 							<p id="recorrido-titulo" className="lab-orbit-title">
-								Recorrido de la partitura
+								{t.pasada.recorrido}
 							</p>
 							<div
 								className="lab-raster-switch lab-orbit-switch"
@@ -381,72 +394,67 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 									aria-pressed={!sameOrbit}
 									onClick={() => setSameOrbit(false)}
 								>
-									Nota por nota
+									{t.pasada.notaPorNota}
 								</button>
 								<button aria-pressed={sameOrbit} onClick={() => setSameOrbit(true)}>
-									Misma órbita
+									{t.pasada.mismaOrbita}
 								</button>
 							</div>
 							<p className="exp-caption">
 								{sameOrbit
-									? `Salta a la siguiente pasada ${current.direccion === 'asc' ? 'ascendente' : 'descendente'}: compara el manglar siempre desde el mismo ángulo.`
-									: 'Sigue la partitura en orden. Ascendentes y descendentes se alternan y miran el manglar desde ángulos distintos: el brillo puede cambiar aunque no cambie el agua.'}
+									? t.pasada.ayudaMismaOrbita(current.direccion === 'asc')
+									: t.pasada.ayudaNotaPorNota}
 							</p>
 						</div>
 						<div
 							className="lab-raster-switch"
 							role="group"
-							aria-label="Qué muestra el mapa"
+							aria-label={t.pasada.queMuestra}
 						>
 							<button
 								aria-pressed={layer === 'rgb'}
 								onClick={() => chooseLayer('rgb')}
 							>
-								Radar RGB
+								{t.pasada.radarRgb}
 							</button>
 							<button
 								aria-pressed={layer === 'clases'}
 								onClick={() => chooseLayer('clases')}
 							>
-								Clases
+								{t.pasada.clases}
 							</button>
 						</div>
 						<Legend layer={layer} dataset={dataset} />
-						{!temporal && (
-							<p className="exp-caption">
-								La capa resume todas las pasadas. La partitura mantiene la marea de
-								cada adquisición.
-							</p>
-						)}
+						{!temporal && <p className="exp-caption">{t.pasada.resumenCapa}</p>}
 					</Widget>
 					<Widget
-						title="Capas del mapa"
+						title={t.capas.titulo}
 						icon={Layers}
-						summary={layerLabels[layer]}
+						summary={t.capas.nombres[layer]}
 						open={widgets.layers}
 						onOpen={v => open('layers', v)}
 					>
-						<div className="lab-layer-list" role="group" aria-label="Capas disponibles">
-							{Object.entries(layerLabels).map(([id, label]) => (
+						<div
+							className="lab-layer-list"
+							role="group"
+							aria-label={t.capas.disponibles}
+						>
+							{LAYERS.map(id => (
 								<button
 									key={id}
 									aria-pressed={layer === id}
-									onClick={() => chooseLayer(id as Layer)}
+									onClick={() => chooseLayer(id)}
 								>
-									<span>{label}</span>
+									<span>{t.capas.nombres[id]}</span>
 									{layer === id && <Check size={16} aria-hidden />}
 								</button>
 							))}
 						</div>
 					</Widget>
 					<Widget
-						title="Esta celda"
+						title={t.celda.titulo}
 						icon={ScanLine}
-						summary={
-							selected
-								? 'Serie y métricas de la selección'
-								: 'Seleccioná un punto del mapa'
-						}
+						summary={selected ? t.celda.resumenSeleccion : t.celda.resumenVacia}
 						open={widgets.cell}
 						onOpen={v => open('cell', v)}
 					>
@@ -464,131 +472,114 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 											request.current++;
 											setBusy(false);
 											setSelected(null);
-											setCellMessage('Elegí otro punto del mapa.');
+											setCellMessage('otra');
 										}}
 									>
-										Limpiar selección
+										{t.celda.limpiar}
 									</button>
 								</>
 							) : (
 								<>
-									<p role="status">{cellMessage}</p>
+									<p role="status">{t.celda[cellMessage]}</p>
 									<button
 										className="boton boton-contorno lab-small"
 										disabled={busy}
 										onClick={() => void inspect(...m.region.centro)}
 									>
-										Inspeccionar el centro
+										{t.celda.inspeccionarCentro}
 									</button>
 								</>
 							)}
 						</div>
 					</Widget>
 					<Widget
-						title="Pruebas de calidad"
+						title={t.calidad.titulo}
 						icon={ShieldCheck}
-						summary={`${controls.filter(c => c.passed).length} de 4 controles globales pasan`}
+						summary={t.calidad.resumen(controls.filter(c => c.passed).length)}
 						open={widgets.quality}
 						onOpen={v => open('quality', v)}
 					>
-						<p className="exp-caption">
-							Controles internos; la exactitud con muestras independientes aún no se
-							ha medido.
-						</p>
+						<p className="exp-caption">{t.calidad.nota}</p>
 						<ul className="lab-quality">
 							{controls.map(c => (
 								<li key={c.name}>
 									<div>
 										<strong>{c.name}</strong>
 										<span className={c.passed ? 'exp-pass' : 'exp-fail'}>
-											{c.passed ? 'Pasa' : 'No pasa'}
+											{c.passed ? t.calidad.pasa : t.calidad.noPasa}
 										</span>
 									</div>
 									<small>{c.evidence}</small>
 								</li>
 							))}
 						</ul>
-						<h3>Clases, por pista</h3>
+						<h3>{t.calidad.porPista}</h3>
 						<ul className="lab-quality">
-							{Object.entries(q.prueba_marea.clases_por_pila).map(([track, t]) => (
+							{Object.entries(q.prueba_marea.clases_por_pila).map(([track, pila]) => (
 								<li key={track}>
 									<div>
 										<strong>
-											{track.includes('asc') ? 'Ascendente' : 'Descendente'}
+											{track.includes('asc') ? t.pasada.asc : t.pasada.desc}
 										</strong>
-										<span className={t.aprobada ? 'exp-pass' : 'exp-fail'}>
-											{!t.evaluable
-												? 'No evaluable'
-												: t.aprobada
-													? 'Pasa'
-													: 'No pasa'}
+										<span className={pila.aprobada ? 'exp-pass' : 'exp-fail'}>
+											{!pila.evaluable
+												? t.calidad.noEvaluable
+												: pila.aprobada
+													? t.calidad.pasa
+													: t.calidad.noPasa}
 										</span>
 									</div>
 									<small>
-										r {number(t.r)} · p {formatP(t.p)}
+										r {number(pila.r)} · p {formatP(pila.p, t)}
 									</small>
 								</li>
 							))}
 						</ul>
-						<p className="exp-caption">
-							Valores p unilaterales, sin ajuste por comparar varios sitios.
-						</p>
+						<p className="exp-caption">{t.calidad.notaP}</p>
 					</Widget>
 					<Widget
-						title="Marea y límites"
+						title={t.marea.titulo}
 						icon={Activity}
-						summary={`Pleamar observada: ${percent(m.marea.pleamar_rel)}`}
+						summary={t.marea.resumen(percent(m.marea.pleamar_rel, t))}
 						open={widgets.tide}
 						onOpen={v => open('tide', v)}
 					>
-						<p>
-							Las pasadas alcanzan el {percent(m.marea.pleamar_rel)} de la pleamar
-							máxima predicha. Una baja frecuencia observada no confirma desconexión.
-						</p>
-						<p className="exp-caption">
-							Modelo {m.marea.modelo}, sin desfase local estimado. Cada nota
-							representa una adquisición; su altura y sonido corresponden a la marea.
-						</p>
+						<p>{t.marea.texto(percent(m.marea.pleamar_rel, t))}</p>
+						<p className="exp-caption">{t.marea.modelo(m.marea.modelo)}</p>
 						<ul className="lab-warnings">
 							{q.advertencias.map((w, i) => (
-								<li key={i}>{w}</li>
+								<li key={i}>{t.marea.advertencia(w)}</li>
 							))}
 						</ul>
 					</Widget>
 					<Widget
-						title="Datos y procedencia"
+						title={t.datos.titulo}
 						icon={Database}
-						summary={`${m.fechas.length} pasadas · 10 m · celdas de 1 ha`}
+						summary={t.datos.resumen(m.fechas.length)}
 						open={widgets.data}
 						onOpen={v => open('data', v)}
 					>
-						<p className="exp-caption">
-							NISAR: NASA/JPL-Caltech e ISRO. Distribución: ASF DAAC. Máscara: GMW
-							2020.
-						</p>
+						<p className="exp-caption">{t.datos.procedencia}</p>
 						<div className="lab-downloads">
 							<a
 								href={assetUrl(m.datos.calidad, dataset.manifestUrl)}
 								target="_blank"
 								rel="noreferrer"
 							>
-								Informe de calidad JSON
+								{t.datos.informe}
 							</a>
 							<a href={assetUrl(m.datos.resumen, dataset.manifestUrl)} download>
-								Resumen CSV
+								{t.datos.resumenCsv}
 							</a>
 							<a href={dataset.manifestUrl} target="_blank" rel="noreferrer">
-								Manifest de la publicación
+								{t.datos.manifest}
 							</a>
 						</div>
 						<p className="exp-caption">
-							Datos {site.publicacion} · contrato {m.version} · motor{' '}
-							{m.motor.version}.
+							{t.datos.version(site.publicacion, m.version, m.motor.version)}
 						</p>
 					</Widget>
-					<p className="lab-experimental">
-						Resultados experimentales. La validación independiente sigue pendiente.
-					</p>
+					<p className="lab-experimental">{t.experimental}</p>
 					<FranjaManglar className="lab-mangrove" />
 				</aside>
 				<div className="lab-score">
@@ -600,9 +591,9 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 						modo={temporal ? 'pasada' : 'conectividad'}
 						nota={
 							mapFailed
-								? 'La carga se detuvo. Reintentá desde el mapa.'
+								? t.partitura.detenida
 								: playing && mapPending
-									? 'Esperando esta pasada. La música continúa cuando el mapa esté listo.'
+									? t.partitura.esperando
 									: undefined
 						}
 						transporte={{
