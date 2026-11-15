@@ -13,7 +13,16 @@ import {
 	X,
 	type LucideIcon
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type ReactNode
+} from 'react';
 
 import { rangoDeMarea } from '@/features/datos/dominio';
 import { Reproductor } from '@/features/explorar/reproductor';
@@ -23,8 +32,13 @@ import { sonido } from '@/features/partitura/sonido';
 
 import { assetUrl, formatP, loadCell, percent, type Cell, type Dataset, type Site } from './data';
 import { Inspector, Legend } from './details';
-import { ExperimentalMap, layerLabels, type Layer } from './map';
+import { layerLabels, type Layer, type MapStatus } from './layers';
+import { MapBoundary } from './map-boundary';
 import { timelineData } from './timeline';
+
+const ExperimentalMap = lazy(() =>
+	import('./map').then(module => ({ default: module.ExperimentalMap }))
+);
 
 const number = (v: number | null, n = 3) =>
 	v === null ? 'Sin dato' : v.toLocaleString('es-NI', { maximumFractionDigits: n });
@@ -90,7 +104,7 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 			: 'rgb'
 	);
 	const [playing, setPlaying] = useState(false);
-	const [sounding, setSounding] = useState<string | null>(null);
+	const [mapStatus, setMapStatus] = useState<MapStatus>({ key: '', loading: true, error: false });
 	const [selected, setSelected] = useState<Cell | null>(null);
 	const [cellMessage, setCellMessage] = useState(
 		'Elegí un punto del mapa para conocer su respuesta a la marea.'
@@ -109,6 +123,19 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 	const request = useRef(0);
 	const current = m.fechas[date]!;
 	const temporal = layer === 'rgb' || layer === 'clases';
+	const mapPending = mapStatus.key !== `${layer}:${current.fecha_id}` || mapStatus.loading;
+	const mapFailed = mapStatus.key === `${layer}:${current.fecha_id}` && mapStatus.error;
+	const sounding = !mapPending && !mapFailed && temporal ? current.fecha_id : null;
+	const updateMapStatus = useCallback((value: MapStatus) => {
+		setMapStatus(previous =>
+			previous.key === value.key &&
+			previous.loading === value.loading &&
+			previous.error === value.error
+				? previous
+				: value
+		);
+		if (value.error) setPlaying(false);
+	}, []);
 	const open = (id: WidgetId, value: boolean) => setWidgets(w => ({ ...w, [id]: value }));
 	const selectDate = useCallback(
 		(id: string, automatic = false) => {
@@ -116,19 +143,21 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 			if (index < 0) return;
 			if (!automatic) setPlaying(false);
 			setDate(index);
-			setSounding(id);
-			sonido.tocarMarea(m.fechas[index]!.marea_m, range, false);
 		},
-		[m, range]
+		[m]
 	);
 	useEffect(() => {
-		if (!playing) return;
+		if (!playing || mapPending || mapFailed) return;
 		const timer = window.setTimeout(
 			() => selectDate(m.fechas[(date + 1) % m.fechas.length]!.fecha_id, true),
 			1300
 		);
 		return () => window.clearTimeout(timer);
-	}, [playing, date, m, selectDate]);
+	}, [playing, date, m, selectDate, mapPending, mapFailed]);
+	useEffect(() => {
+		if (mapPending || mapFailed || !temporal) return;
+		sonido.tocarMarea(current.marea_m, range, false);
+	}, [current, range, temporal, mapPending, mapFailed]);
 	useEffect(() => {
 		const url = new URL(window.location.href);
 		url.searchParams.set('fecha', current.fecha_id);
@@ -254,14 +283,25 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 			)}
 			<main className="lab-stage" id="contenido">
 				<div className="lab-map-zone">
-					<ExperimentalMap
-						dataset={dataset}
-						date={current.fecha_id}
-						layer={layer}
-						selected={selected}
-						onPoint={(lon, lat) => void inspect(lon, lat)}
-						embedded
-					/>
+					<MapBoundary>
+						<Suspense
+							fallback={
+								<p className="exp-map-message" role="status">
+									Preparando el mapa…
+								</p>
+							}
+						>
+							<ExperimentalMap
+								dataset={dataset}
+								date={current.fecha_id}
+								layer={layer}
+								selected={selected}
+								onPoint={(lon, lat) => void inspect(lon, lat)}
+								onStatus={updateMapStatus}
+								embedded
+							/>
+						</Suspense>
+					</MapBoundary>
 				</div>
 				<div className="lab-modes papel" role="group" aria-label="Modos de exploración">
 					<button aria-pressed={temporal} onClick={() => chooseLayer('rgb')}>
@@ -522,6 +562,13 @@ export function Workspace({ dataset, sites }: { dataset: Dataset; sites: Site[] 
 						onSeleccion={id => selectDate(id)}
 						sonando={sounding}
 						modo={temporal ? 'pasada' : 'conectividad'}
+						nota={
+							mapFailed
+								? 'La carga se detuvo. Reintentá desde el mapa.'
+								: playing && mapPending
+									? 'Esperando esta pasada. La música continúa cuando el mapa esté listo.'
+									: undefined
+						}
 						transporte={{
 							reproduciendo: playing,
 							onReproducir: () => {

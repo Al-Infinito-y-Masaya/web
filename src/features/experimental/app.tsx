@@ -13,6 +13,8 @@ export function ExperimentalApp() {
 	const [dataset, setDataset] = useState<Dataset | null>(null);
 	const [error, setError] = useState('');
 	useEffect(() => {
+		// Fetch the map module alongside metadata; the small shell can paint first.
+		void import('./map').catch(() => undefined); // The map boundary provides recovery.
 		const controller = new AbortController();
 		const slug = window.location.pathname.replace(/\/+$/, '').split('/').pop();
 		readJson(catalogUrl, catalogSchema, controller.signal)

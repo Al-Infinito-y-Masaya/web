@@ -1,5 +1,5 @@
 import { percent, stateLabels, type Cell, type Dataset } from './data';
-import type { Layer } from './map';
+import type { Layer } from './layers';
 
 const number = (n: number | null, digits = 2) =>
 	n === null ? 'Sin dato' : n.toLocaleString('es-NI', { maximumFractionDigits: digits });
