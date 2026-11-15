@@ -7,6 +7,7 @@ interface ViteTypeOptions {
 
 /** Declare every VITE_* variable here (and document it in .env.example). */
 interface ImportMetaEnv {
+	readonly VITE_EXPLORADOR_EXPERIMENTAL?: string;
 	readonly VITE_API_URL?: string;
 	readonly VITE_DEBUG?: string;
 }

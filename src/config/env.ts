@@ -8,6 +8,7 @@ import { z } from 'zod';
  * surfacing later as `undefined`.
  */
 const schema = z.object({
+	VITE_EXPLORADOR_EXPERIMENTAL: z.enum(['true', 'false']).default('false'),
 	VITE_API_URL: z.string().default('http://localhost:8000'),
 	/** Base of the static backup the engine publishes on the CDN (RNF-08). Empty = no backup. */
 	VITE_RESPALDO_URL: z.string().default(''),
@@ -34,6 +35,7 @@ if (!parsed.success) {
 }
 
 export const env = {
+	experimentalExplorer: parsed.data.VITE_EXPLORADOR_EXPERIMENTAL === 'true',
 	apiUrl: parsed.data.VITE_API_URL.replace(/\/$/, ''),
 	backupUrl: parsed.data.VITE_RESPALDO_URL.replace(/\/$/, ''),
 	defaultRegion: parsed.data.VITE_REGION,

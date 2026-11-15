@@ -1,10 +1,15 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useCallback } from 'react';
 
+import { env } from '@/config/env';
 import { busquedaSchema } from '@/features/explorar/busqueda';
 import { Explorar, type CambiarBusqueda } from '@/features/explorar/explorar';
 
 export const Route = createFileRoute('/explorar')({
+	beforeLoad: () => {
+		if (env.experimentalExplorer)
+			throw redirect({ href: '/laboratorio/aserradores', reloadDocument: true });
+	},
 	validateSearch: search => busquedaSchema.parse(search),
 	component: PaginaExplorar
 });
