@@ -209,25 +209,43 @@ export function waterSvg(width: number, height: number) {
 function tree(x: number, sc: number, r: Rng, back: boolean) {
 	const R = 230 * sc;
 	const cy = (back ? 1330 : 1260) + (r() - 0.5) * 60;
-	const baseY = 1600 + (r() - 0.5) * 30;
+	// El tronco termina por encima del agua: ahí se abre en raíces zancudas.
+	const baseY = (back ? 1600 : 1560) + (r() - 0.5) * 24;
 	const lean = (r() - 0.5) * 40;
-
-	// Raíces zancudas del mangle rojo: arcos que salen del tronco y bajan al agua.
-	let roots = '';
-	const rootCount = back ? 5 : 8;
-	for (let i = 0; i < rootCount; i++) {
-		const dir = i % 2 ? 1 : -1;
-		const sy = (back ? 1490 : 1430) + r() * (back ? 110 : 170);
-		const sx = x + lean * 0.6 + (r() - 0.5) * 16;
-		const reach = (70 + r() * 280) * sc * dir;
-		const ex = sx + reach;
-		const ey = 1930 + r() * (back ? 70 : 150);
-		const d = `M${f1(sx)} ${f1(sy)} C${f1(sx + reach * 0.55)} ${f1(sy - 50 * sc)} ${f1(ex)} ${f1(sy + (ey - sy) * 0.15)} ${f1(ex)} ${f1(ey)}`;
-		roots += `<path d="${d}" stroke-width="${f1(9 * sc)}"/><path d="${d}" stroke-width="${f1(3 * sc)}" transform="translate(${f1(5 * sc)} 2)" opacity=".6"/>`;
-	}
-
 	const tw = 16 * sc;
 	const ty = cy + R * 0.2;
+
+	// Raíces zancudas del mangle rojo: salen de la parte baja del tronco, se
+	// abren hacia afuera en arco y bajan casi verticales hasta el agua. Las de
+	// afuera nacen un poco más arriba y llegan más lejos, así forman arcos
+	// anidados como una jaula alrededor de la base.
+	let roots = '';
+	const pairs = back ? 3 : 5;
+	const trunkLen = baseY - ty;
+	const edgeAt = (y: number, side: number) =>
+		x + lean * ((y - ty) / trunkLen) + side * tw * (1 + 0.3 * ((y - ty) / trunkLen));
+	for (let k = 0; k < pairs; k++) {
+		const t = pairs > 1 ? k / (pairs - 1) : 0; // 0 = interior, 1 = exterior
+		for (const side of [-1, 1]) {
+			const sy = baseY - trunkLen * (0.02 + 0.2 * t) - r() * 8 * sc;
+			const sx = edgeAt(sy, side);
+			const reach = (45 + 230 * t + r() * 40) * sc * side;
+			const ex = sx + reach;
+			const ey = SURFACE_Y + (back ? 20 : 35) + r() * (back ? 50 : 110);
+			const lift = (8 + 40 * t) * sc;
+			const d = `M${f1(sx)} ${f1(sy)} C${f1(sx + reach * 0.45)} ${f1(sy - lift)} ${f1(ex - reach * 0.06)} ${f1(sy + (ey - sy) * 0.22)} ${f1(ex)} ${f1(ey)}`;
+			const w = (9 - 3 * t) * sc;
+			roots += `<path d="${d}" stroke-width="${f1(w)}"/><path d="${d}" stroke-width="${f1(w * 0.35)}" transform="translate(${f1(4 * sc * side)} 2)" opacity=".6"/>`;
+		}
+	}
+	// Dos raíces cortas que siguen al tronco hacia abajo, casi rectas.
+	for (const side of [-1, 1]) {
+		const sx = x + lean + side * tw * 0.6;
+		const ex = sx + side * (10 + r() * 14) * sc;
+		const ey = SURFACE_Y + (back ? 25 : 45) + r() * 60;
+		roots += `<path d="M${f1(sx)} ${f1(baseY - 4)} C${f1(sx)} ${f1(baseY + 40)} ${f1(ex)} ${f1(ey - 60)} ${f1(ex)} ${f1(ey)}" stroke-width="${f1(7 * sc)}"/>`;
+	}
+
 	const trunk = `M${f1(x - tw)} ${f1(ty)} C${f1(x - tw)} ${f1(ty + 120)} ${f1(x + lean - tw * 1.2)} ${f1(baseY - 80)} ${f1(x + lean - tw * 1.3)} ${f1(baseY)} L${f1(x + lean + tw * 1.3)} ${f1(baseY)} C${f1(x + lean + tw * 1.2)} ${f1(baseY - 80)} ${f1(x + tw)} ${f1(ty + 120)} ${f1(x + tw)} ${f1(ty)}Z`;
 	let branches = '';
 	for (let j = 0; j < 3; j++) {
