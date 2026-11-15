@@ -45,3 +45,10 @@ La revisión visual y las mediciones se hicieron sobre la compilación servida l
 - Fundido de 200 ms entre la pasada anterior y la nueva, en lugar de un corte.
 - Selector «Recorrido de la partitura»: «Nota por nota» (por defecto) sigue la partitura en orden cronológico; «Misma órbita» hace que las flechas y la reproducción salten a la siguiente pasada ascendente o descendente, porque las órbitas miran el manglar con otro ángulo y su brillo cambia aunque no cambie el agua. `?orbita=misma` abre con esta opción. La precarga sigue el recorrido elegido.
 - Navegador local con datos de Chismuyo: al avanzar, cero peticiones PMTiles nuevas y la pasada lista en 50–80 ms, sin aviso. Las mediciones de tiempo con la ventana en segundo plano no son válidas (la página baja a unos 5 cuadros por segundo).
+
+### Publicación `2026-11-15-transiciones-r1`
+
+- Frontend `1847d9b` (merge de `perf/transiciones-pasadas` con la canción de intro y los enlaces a GitHub de `origin/feat/laboratorio-estuarios`). Compilado con `VITE_EXPLORADOR_EXPERIMENTAL=true`, `VITE_API_URL=/api` y `VITE_RESPALDO_URL=/archivos`.
+- Instalado con `update-sites.py` sobre `2026-11-15-loading-r1`: 284 archivos verificados por HTTPS desde EC2, API sana. Caddy y catálogo sin cambios (`f59b6486…`, `6e642884…`); datos científicos intactos.
+- Paquete: `~/manglar/codex_transiciones_web_20261115/site.tar.gz`, SHA-256 `f35dd7da1c2b3fde2ad9d146d1030748608147ed131ff0a63818b5ba0d0dba36`.
+- Reversión: devolver los enlaces `current` de `/srv/mangroove/web` y `/srv/mangroove/laboratorio` a `releases/2026-11-15-loading-r1` (`ln -sfn` y `mv -T`), sin tocar datos ni Caddy.
