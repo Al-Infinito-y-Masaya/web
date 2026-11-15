@@ -3,6 +3,7 @@ import { RotateCcw, RotateCw, SkipForward } from 'lucide-react';
 
 import { useSesion } from '@/features/datos/sesion';
 import { useIdioma } from '@/features/idioma/idioma';
+import { CodigoAbiertoPie } from '@/features/marca/codigo-abierto';
 import { Isotipo, NotaMusical } from '@/features/marca/marca';
 import { Spinner } from '@/shared/ui/primitives/spinner';
 import { cn } from '@/shared/utils';
@@ -155,6 +156,7 @@ export function Inicio() {
 								{t.inicio.repetir}
 							</button>
 						)}
+						<CodigoAbiertoPie className="mt-1 [text-shadow:none]" />
 						<p className="text-xs">{t.inicio.creditos}</p>
 					</div>
 				</div>

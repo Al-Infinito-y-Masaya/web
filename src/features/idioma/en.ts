@@ -130,6 +130,13 @@ export const en: Textos = {
 			'You can read the story and the method in the meantime. The map fills in once a version is published.'
 	},
 
+	codigo: {
+		titulo: 'Open source',
+		abreEnGithub: 'opens on GitHub',
+		web: 'The app you are looking at: the map, the story and the sound.',
+		api: 'The engine and the API: processes the NISAR passes and publishes each version.'
+	},
+
 	modos: {
 		etiqueta: 'Explore modes',
 		ritmo: 'The rhythm',
@@ -582,7 +589,6 @@ export const en: Textos = {
 		errorSeccion: 'This part could not be loaded. The rest of the page is still available.',
 		creditos:
 			'Open source code and derived data under the CC BY 4.0 licence. Credits: NASA/JPL-Caltech and ISRO for the NISAR mission; Alaska Satellite Facility DAAC for distributing the products; Global Mangrove Watch; ESA Copernicus; EOX IT Services for the reference image.',
-		repositorio: 'Project repository',
 		volver: 'Back to the map'
 	}
 };

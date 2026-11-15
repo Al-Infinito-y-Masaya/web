@@ -3,13 +3,13 @@ import { Link } from '@tanstack/react-router';
 import { Download, ExternalLink } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { appConfig } from '@/config/app';
 import type { Contexto } from '@/features/datos/api';
 import type { Hipotesis, Manifiesto } from '@/features/datos/esquemas';
 import { EstadoSesion } from '@/features/datos/estado-sesion';
 import { datos } from '@/features/datos/servicio';
 import { useSesion } from '@/features/datos/sesion';
 import { useIdioma } from '@/features/idioma/idioma';
+import { CodigoAbierto } from '@/features/marca/codigo-abierto';
 import { Spinner } from '@/shared/ui/primitives/spinner';
 
 /**
@@ -119,17 +119,7 @@ export function Metodo() {
 
 					<Seccion id="creditos">
 						<p>{t.metodo.creditos}</p>
-						<p>
-							<a
-								href={appConfig.repository}
-								className="inline-flex items-center gap-1.5 font-medium underline underline-offset-4"
-								target="_blank"
-								rel="noreferrer"
-							>
-								{t.metodo.repositorio}
-								<ExternalLink className="size-4" aria-hidden />
-							</a>
-						</p>
+						<CodigoAbierto className="max-w-xl" />
 					</Seccion>
 
 					<Link to="/explorar" className="boton boton-primario">

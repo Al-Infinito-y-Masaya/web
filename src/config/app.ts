@@ -8,6 +8,10 @@ export const appConfig = {
 		'Qué manglares del delta del Estero Real siguen recibiendo la marea, vistos con el radar NISAR.',
 	team: 'Al Infinito y Masaya',
 	repository: 'https://github.com/Al-Infinito-y-Masaya',
+	repositories: {
+		web: 'https://github.com/Al-Infinito-y-Masaya/web',
+		api: 'https://github.com/Al-Infinito-y-Masaya/api'
+	},
 	/** BCP 47 locale of the generic formatters in `shared/` (`undefined` = browser locale). */
 	locale: undefined as string | undefined,
 	storageKeys: {

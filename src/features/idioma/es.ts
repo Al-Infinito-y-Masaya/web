@@ -139,6 +139,13 @@ export const es = {
 			'Podés leer la historia y el método mientras tanto. El mapa se llena cuando haya una versión publicada.'
 	},
 
+	codigo: {
+		titulo: 'Código abierto',
+		abreEnGithub: 'se abre en GitHub',
+		web: 'La aplicación que estás viendo: el mapa, la historia y el sonido.',
+		api: 'El motor y la API: procesa las pasadas de NISAR y publica cada versión.'
+	},
+
 	modos: {
 		etiqueta: 'Modos de exploración',
 		ritmo: 'El ritmo',
@@ -601,7 +608,6 @@ export const es = {
 		errorSeccion: 'No se pudo cargar esta parte. El resto de la página sigue disponible.',
 		creditos:
 			'Código abierto y datos derivados con licencia CC BY 4.0. Créditos: NASA/JPL-Caltech e ISRO por la misión NISAR; Alaska Satellite Facility DAAC por la distribución de los productos; Global Mangrove Watch; ESA Copernicus; EOX IT Services por la imagen de referencia.',
-		repositorio: 'Repositorio del proyecto',
 		volver: 'Volver al mapa'
 	}
 };
