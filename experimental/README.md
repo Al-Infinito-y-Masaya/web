@@ -51,6 +51,17 @@ sudo python3 deploy.py --rollback /srv/mangroove/laboratorio/backups/2026-11-15-
 
 Caddy sirve HTML sin cache, archivos con hash y datos por publicación con cache inmutable, catálogo con cinco minutos de cache, y soporta Range/ETag y preflight para los orígenes que ya estaban permitidos. No cambia la lista de orígenes autorizados.
 
+## Actualizar solo la interfaz
+
+Para conservar los datos publicados y Caddy, compilar y empaquetar con una nueva identidad del visor; transferir únicamente `app/`, `schemas/` y `release.json`. `deploy-ui.py` verifica los hashes científicos contra los archivos existentes y cambia atómicamente el enlace de la interfaz:
+
+```text
+sudo python3 deploy-ui.py /absolute/path/to/package EXPECTED_PREVIOUS_RELEASE
+sudo python3 deploy-ui.py --rollback NEW_RELEASE
+```
+
+El despliegue actual del visor y su evidencia están en `DEPLOYMENT-UI.md`; el registro inicial permanece en `DEPLOYMENT.md`. La identidad del visor puede avanzar sin cambiar las identidades de las publicaciones científicas.
+
 ## Alcance científico
 
 Estos sitios pasan los cuatro controles internos globales; Padre Ramos no pasa el control de clases en la pista descendente. No hay muestras independientes ópticas o bajo dosel para estimar exactitud. La marea procede de un modelo regional sin desfase local; las adquisiciones llegan aproximadamente al 81 % de la pleamar predicha. No se incorporan DEM ni WorldCover. La selección de sitios es exploratoria y los valores p no se ajustaron por comparaciones entre sitios.
