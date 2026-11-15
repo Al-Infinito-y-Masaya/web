@@ -1,87 +1,76 @@
-# Frontend Factory
+# Mangroove · web
 
-A production-ready React starter. Clone it, point it at your API, and start building pages instead of wiring tools together.
+Aplicación web pública de **Mangroove** (NASA Space Apps Challenge 2026, reto _Dancing with the SARs_, equipo Al Infinito y Masaya). Muestra, con datos del radar NISAR, qué manglares del delta del Estero Real siguen recibiendo la marea y cuáles podrían haber dejado de recibirla.
 
-| Concern      | Choice                                                                                                           |
-| ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Build / dev  | [Vite](https://vite.dev) + TypeScript (strict)                                                                   |
-| UI           | React 19, [Tailwind CSS v4](https://tailwindcss.com), [shadcn/ui](https://ui.shadcn.com) on Radix, lucide icons  |
-| Routing      | [TanStack Router](https://tanstack.com/router) — file-based, type-safe links, params and search params           |
-| Server state | [TanStack Query](https://tanstack.com/query) + a CRUD service factory                                            |
-| API client   | [openapi-fetch](https://openapi-ts.dev/openapi-fetch/) with types generated from your OpenAPI schema             |
-| Errors       | Typed `AppError` union + [neverthrow](https://github.com/supermacro/neverthrow) `Result`s                        |
-| Forms        | [React Hook Form](https://react-hook-form.com) + [Zod 4](https://zod.dev), server errors mapped onto fields      |
-| Quality      | ESLint (flat config), Prettier (import + Tailwind class sorting), [Vitest](https://vitest.dev) + Testing Library |
-| Extras       | Light/dark/system theme, devtools in dev, `just` task runner, feature scaffolding script                         |
+Es solo lectura y no tiene cuentas: todo lo que muestra sale de la API pública de Mangroove.
 
-## Quick start
+## Puesta en marcha
 
 ```bash
-pnpm install           # also generates API types from openapi/schema.json
-cp .env.example .env   # set VITE_API_URL to your backend
+pnpm install           # también genera los tipos desde openapi/schema.json
+cp .env.example .env   # apuntá VITE_API_URL a la API
 pnpm dev               # http://localhost:3000
 ```
 
-Requires Node 22+ and pnpm 11. The example pages talk to a real backend (no mocks): without one running you will see the login page and a connection error when signing in, which is expected.
+Requiere Node 22+ y pnpm 11. **La app no trae datos de demostración**: sin una API que responda, cada pantalla dice por qué no hay datos y ofrece reintentar.
 
-## Scripts
+| Variable            | Para qué                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Base de la API de Mangroove. Su origen debe estar en `CORS_ALLOWED_ORIGINS` del backend.             |
+| `VITE_RESPALDO_URL` | Base del respaldo estático que el motor deja en la CDN. Se usa solo si la API no responde. Opcional. |
+| `VITE_REGION`       | Región que se abre si la API no puede listar las regiones.                                           |
+| `VITE_TESELAS_URL`  | Plantilla XYZ de la imagen de referencia bajo las capas. Vacía, el mapa va sin fondo.                |
 
-| Command                        | What it does                                               |
-| ------------------------------ | ---------------------------------------------------------- |
-| `pnpm dev`                     | Dev server with HMR (regenerates API types first)          |
-| `pnpm build` / `pnpm preview`  | Type-check + production build into `dist/` / serve it      |
-| `pnpm typecheck`               | `tsc --noEmit`                                             |
-| `pnpm lint` / `pnpm lint:fix`  | ESLint                                                     |
-| `pnpm format` / `format:check` | Prettier                                                   |
-| `pnpm test` / `test:watch`     | Vitest (jsdom)                                             |
-| `pnpm check`                   | Everything CI should run                                   |
-| `pnpm generate:api`            | `openapi/schema.json` → `src/shared/client/api-types.d.ts` |
-| `pnpm new:feature <name>`      | Scaffold a CRUD feature with list + detail pages           |
+## Pantallas
 
-Every script has a [`just`](https://just.systems) equivalent (`just --list`), plus `just api` to download your backend's schema and regenerate types.
+| Ruta        | Qué resuelve                                                                                          |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| `/`         | Qué es Mangroove, los dos caminos y el estado real de los datos                                       |
+| `/historia` | Relato en cinco actos: cada acto mueve el mapa y activa su capa                                       |
+| `/explorar` | **El ritmo** (pasada, reproducción, comparar A y B), **En sintonía / fuera de ritmo** y **Estanques** |
+| `/metodo`   | Método, umbrales de la versión, hipótesis, procedencia, descargas y créditos                          |
 
-## Project layout
+El inspector de celda se abre al tocar el mapa en cualquier modo de `/explorar`. Todo el estado de esa vista (región, versión, modo, pasada, capa, celda y zoom) vive en la URL, así que **Compartir** copia un enlace permanente.
+
+## Cómo está armado
+
+Sigue la arquitectura de la plantilla ([docs/architecture.md](docs/architecture.md)): `routes → features → shared`.
 
 ```
-openapi/schema.json        API contract (replace with your backend's)
-templates/                 Copy-paste page templates + scaffolding sources
-scripts/new-feature.mjs    Feature generator
-src/
-  app/
-    main.tsx               Entry: QueryClient + Router
-    globals.css            Tailwind + design tokens (light/dark)
-    navigation.ts          Sidebar entries
-    components/            App-level components (brand, user menu, devtools)
-    routes/                File-based routes (one file = one page)
-  config/                  env, app constants, query client, zod setup
-  features/<name>/         Domain code: types, api, service, schemas, components
-  shared/
-    client/                Typed API client + middleware
-    data/                  CRUD service factory
-    models/                AppError, Result helpers, pagination types
-    hooks/  utils/         Generic hooks and helpers
-    ui/                    primitives (shadcn), form, data (tables), feedback, layout, theme
-  test/                    Vitest setup + render helpers
+src/features/
+  datos/       Contrato (Zod), acceso a la API con respaldo, sesión de región y versión, reglas de dominio
+  mapa/        Visor Web Mercator: capas PNG, vista dividida, selección de celda, polígonos
+  partitura/   La marea como partitura y su sonido
+  explorar/    Modos, leyendas, inspector y gráfica de la serie
+  relato/      Historia guiada
+  metodo/      Método y datos
+  inicio/      Portada
+  idioma/      Textos en español e inglés y formato de números y fechas
+  marca/       Filtro crayola, isotipo, franja de manglar y notas
 ```
 
-## Documentation
+Decisiones que conviene conocer antes de tocar el código:
 
-1. [Getting started](docs/getting-started.md) — setup, env vars, connecting your API
-2. [Architecture](docs/architecture.md) — layers, folder rules, data flow
-3. [Routing & pages](docs/routing.md) — adding pages, layouts, guards, search params, page templates
-4. [Data fetching](docs/data-fetching.md) — API client, CRUD services, queries and mutations
-5. [Forms](docs/forms.md) — `useZodForm`, fields, server errors, unsaved changes
-6. [Tables](docs/tables.md) — `TableView`, filters, URL-synced params
-7. [Error handling](docs/error-handling.md) — `AppError`, `Result`, where errors surface
-8. [Authentication](docs/authentication.md) — session flow, guards, CSRF/JWT/bearer variants
-9. [Styling & UI](docs/styling.md) — tokens, theming, adding shadcn components
-10. [Testing](docs/testing.md) — Vitest, Testing Library, what to test
-11. [Scaffolding](docs/scaffolding.md) — `pnpm new:feature` and templates
+- **El contrato se valida en tiempo de ejecución.** El esquema OpenAPI declara las respuestas públicas como objetos libres, así que su forma está en `features/datos/esquemas.ts`, siguiendo `docs/dominio/contrato.md` de la API. Una respuesta con otra forma se muestra como error, no como un mapa equivocado.
+- **`null` es una respuesta, no un cero.** `metricas: null` es fuera de la máscara; `if_alta: null`, datos insuficientes; `cambio: null`, sin cambio significativo; `marea_m: null`, sin estimación. Las reglas están en `features/datos/dominio.ts`.
+- **Los colores de las capas son del backend.** Las leyendas copian `manifest.leyendas`. Los tokens `--manglar-*` son de marca y los `--dato-*` de datos; no se mezclan (`src/app/globals.css`).
+- **El mapa no usa una librería.** Las capas son PNG en Web Mercator con esquinas comunes (`manifest.limites`), así que cada una es un rectángulo. La proyección está en `features/mapa/proyeccion.ts`.
+- **La partitura es un dato.** La altura de cada nota es `marea_m`; la cabeza indica el nivel (llena alta, gris media, hueca baja); una brecha del satélite es una franja rayada sin nota. El sonido usa las notas de `public/sounds` en escala pentatónica: sin estimación de marea hay silencio y una pasada excluida por lluvia suena apagada.
+- **Los textos nunca muestran nombres de campos** y presentan una posible desconexión como hipótesis para verificar en campo (`features/idioma/es.ts`).
 
-## Make it yours
+## Verificación
 
-- [ ] Rename in `package.json`, `index.html` (`<title>`) and `src/config/app.ts`
-- [ ] Replace `public/favicon.svg`
-- [ ] Replace `openapi/schema.json` with your API (`just api`) and adapt `src/features/auth/api.ts`
-- [ ] Adjust colors in `src/app/globals.css`
-- [ ] Delete `src/features/items` and `src/app/routes/_app/items` once you have your own features
+```bash
+pnpm check   # tipos, lint, formato y pruebas
+pnpm build
+```
+
+## Pendiente
+
+- Explorar con otros umbrales (`POST …/exploraciones/`) y comparador de sensores.
+- «Inundación esperada» (`if_esperada`) todavía no tiene lugar en el inspector.
+- Intro animada del diseño; hoy la portada es estática.
+- Textos del relato y versión en inglés, sin validar con el equipo.
+- Color de la clase «Sin dato»: el backend no lo pinta y aquí va sin color.
+
+Las guías de `docs/` describen la infraestructura heredada de la plantilla (cliente tipado, errores, rutas, pruebas).
