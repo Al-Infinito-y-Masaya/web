@@ -103,6 +103,7 @@ export function IntroScreen() {
 
 					const titleTimeline = gsap
 						.timeline()
+						.fromTo('[data-title-bg]', { opacity: 0 }, { opacity: 1, duration: 0.5 })
 						.fromTo(
 							'[data-letter]',
 							{
@@ -117,7 +118,8 @@ export function IntroScreen() {
 								duration: 0.42,
 								ease: 'power2.out',
 								stagger: 0.17
-							}
+							},
+							'<0.15'
 						)
 						.fromTo(
 							'[data-intro-fade]',
@@ -226,26 +228,34 @@ export function IntroScreen() {
 				>
 					NASA Space Apps 2026 · Dancing with the SARs
 				</p>
-				<h1
-					ref={titleRef}
-					aria-label="Mangroove"
-					className="font-mangroove-display text-[clamp(58px,12.5vw,190px)] leading-[0.95] font-bold tracking-[-0.01em] lowercase"
-					style={{ filter: `url(#${CRAYON_FILTER_IDS[0]})` }}
-				>
-					{TITLE.split('').map((letter, i) => (
-						<span
-							key={i}
-							data-letter
-							aria-hidden="true"
-							className={cn(
-								'inline-block [clip-path:inset(-25%_100%_-25%_0)]',
-								ACCENT_LETTERS.has(i) && 'text-manglar-olivo'
-							)}
-						>
-							{letter}
-						</span>
-					))}
-				</h1>
+				<div className="relative isolate text-[clamp(58px,12.5vw,190px)]">
+					{/* Fondo claro difuminado para que el manglar no se coma el título. */}
+					<div
+						data-title-bg
+						aria-hidden="true"
+						className="absolute -inset-x-[0.3em] -top-[0.04em] -bottom-[0.2em] -z-10 rounded-[0.4em] bg-manglar-papel/80 opacity-0 blur-[10px]"
+					/>
+					<h1
+						ref={titleRef}
+						aria-label="Mangroove"
+						className="font-mangroove-display leading-[0.95] font-bold tracking-[-0.01em] lowercase"
+						style={{ filter: `url(#${CRAYON_FILTER_IDS[0]})` }}
+					>
+						{TITLE.split('').map((letter, i) => (
+							<span
+								key={i}
+								data-letter
+								aria-hidden="true"
+								className={cn(
+									'inline-block [clip-path:inset(-25%_100%_-25%_0)]',
+									ACCENT_LETTERS.has(i) && 'text-manglar-olivo'
+								)}
+							>
+								{letter}
+							</span>
+						))}
+					</h1>
+				</div>
 				<p
 					data-intro-fade
 					className={cn(
