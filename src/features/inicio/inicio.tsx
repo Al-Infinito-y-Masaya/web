@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { RotateCcw, RotateCw, SkipForward } from 'lucide-react';
+import { RotateCcw, RotateCw, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
 import { useSesion } from '@/features/datos/sesion';
 import { useIdioma } from '@/features/idioma/idioma';
@@ -9,6 +9,7 @@ import { Spinner } from '@/shared/ui/primitives/spinner';
 import { cn } from '@/shared/utils';
 
 import { AguaProfunda, TIEMPOS, useIntro } from './intro';
+import { useMusicaIntro } from './musica';
 
 const LETRAS = 'mangroove'.split('');
 
@@ -17,6 +18,11 @@ export function Inicio() {
 	const { t } = useIdioma();
 	const intro = useIntro();
 	const { entra } = intro;
+	const musica = useMusicaIntro({
+		enCurso: intro.enCurso,
+		saltada: !intro.animar,
+		vuelta: intro.vuelta
+	});
 
 	const repetir = () => {
 		document.getElementById('contenido')?.scrollTo(0, 0);
@@ -52,15 +58,35 @@ export function Inicio() {
 				className="absolute inset-x-0 top-0 -z-10 h-[62%] bg-gradient-to-b from-[#f7f1e3] via-[#f7f1e3]/85 to-transparent"
 			/>
 
-			{intro.enCurso && (
-				<button
-					type="button"
-					onClick={intro.saltar}
-					className="boton boton-arena fixed right-4 bottom-4 z-20 shadow-lg"
-				>
-					<SkipForward className="size-4" aria-hidden />
-					{t.inicio.saltar}
-				</button>
+			{(intro.enCurso || musica.sonando) && (
+				<div className="fixed right-4 bottom-4 z-20 flex items-center gap-2">
+					<button
+						type="button"
+						onClick={musica.alternar}
+						aria-pressed={musica.sonando}
+						aria-label={
+							musica.sonando ? t.inicio.musicaSilenciar : t.inicio.musicaActivar
+						}
+						title={musica.sonando ? t.inicio.musicaSilenciar : t.inicio.musicaActivar}
+						className="control-mapa size-11 shadow-lg"
+					>
+						{musica.sonando ? (
+							<Volume2 className="size-5" aria-hidden />
+						) : (
+							<VolumeX className="size-5" aria-hidden />
+						)}
+					</button>
+					{intro.enCurso && (
+						<button
+							type="button"
+							onClick={intro.saltar}
+							className="boton boton-arena shadow-lg"
+						>
+							<SkipForward className="size-4" aria-hidden />
+							{t.inicio.saltar}
+						</button>
+					)}
+				</div>
 			)}
 
 			{/* Reaching the content with the keyboard ends the intro: nothing focusable stays hidden. */}

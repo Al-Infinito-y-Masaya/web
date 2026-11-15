@@ -20,6 +20,8 @@ export const appConfig = {
 		sound: 'mangroove-sonido',
 		/** Session flag: the intro already played in this tab. */
 		intro: 'mangroove-intro-vista',
+		/** '0' when the visitor muted the intro song. */
+		introMusica: 'mangroove-intro-musica',
 		tableColumns: 'app-table-columns:'
 	}
 } as const;
