@@ -36,7 +36,9 @@ const muestras = new Map<string, AudioBuffer>();
 
 async function cargar(ctx: AudioContext, nombre: string) {
 	if (muestras.has(nombre)) return;
-	const respuesta = await fetch(`/sounds/${encodeURIComponent(nombre)}.m4a`);
+	const respuesta = await fetch(
+		`${import.meta.env.BASE_URL}sounds/${encodeURIComponent(nombre)}.m4a`
+	);
 	if (!respuesta.ok) throw new Error(`No se pudo cargar la nota ${nombre}.`);
 	muestras.set(nombre, await ctx.decodeAudioData(await respuesta.arrayBuffer()));
 }

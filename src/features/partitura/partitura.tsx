@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 
 import { excluidaPorLluvia, ms, rangoDeMarea } from '@/features/datos/dominio';
-import type { Brecha, Fecha, Manifiesto } from '@/features/datos/esquemas';
+import type { Brecha, Fecha } from '@/features/datos/esquemas';
 import { useIdioma } from '@/features/idioma/idioma';
 import { cn } from '@/shared/utils';
 
@@ -43,8 +43,15 @@ const FILA_FECHA = 136;
 const MARGEN = { izquierda: 68, derecha: 16 };
 const PASO_MINIMO = 30;
 
+export type DatosPartitura = {
+	fechas: Fecha[];
+	brechas: Brecha[];
+	region: { zona_horaria: string };
+	umbrales: { lluvia_max_mm?: number };
+};
+
 type Props = {
-	manifiesto: Manifiesto;
+	manifiesto: DatosPartitura;
 	seleccion: string | undefined;
 	onSeleccion: (id: string) => void;
 	/** Second pass of a comparison (B); the selection is A. */

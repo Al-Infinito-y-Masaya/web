@@ -1,15 +1,14 @@
 import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import type { Manifiesto } from '@/features/datos/esquemas';
 import { useIdioma } from '@/features/idioma/idioma';
-import { Partitura } from '@/features/partitura/partitura';
+import { Partitura, type DatosPartitura } from '@/features/partitura/partitura';
 import { sonido, useSonido } from '@/features/partitura/sonido';
 import { Spinner } from '@/shared/ui/primitives/spinner';
 import { cn } from '@/shared/utils';
 
 type Props = {
-	manifiesto: Manifiesto;
+	manifiesto: DatosPartitura;
 	seleccion: string | undefined;
 	onSeleccion: (id: string) => void;
 	comparacion?: string | null;

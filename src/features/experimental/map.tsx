@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
+import { env } from '@/config/env';
+
 import { assetUrl, type Cell, type Dataset } from './data';
 
 const protocol = new Protocol();
@@ -36,13 +38,15 @@ export function ExperimentalMap({
 	date,
 	layer,
 	selected,
-	onPoint
+	onPoint,
+	embedded = false
 }: {
 	dataset: Dataset;
 	date: string;
 	layer: Layer;
 	selected: Cell | null;
 	onPoint: (lon: number, lat: number) => void;
+	embedded?: boolean;
 }) {
 	const host = useRef<HTMLDivElement>(null);
 	const map = useRef<maplibregl.Map | null>(null);
@@ -50,6 +54,10 @@ export function ExperimentalMap({
 	const [ready, setReady] = useState(false);
 	const [error, setError] = useState('');
 	const [loading, setLoading] = useState(true);
+	const padding = () =>
+		embedded && window.innerWidth > 900
+			? { top: 80, bottom: 210, left: 30, right: 70 }
+			: { top: 80, bottom: 30, left: 30, right: 50 };
 	useEffect(() => {
 		callback.current = onPoint;
 	}, [onPoint]);
@@ -64,7 +72,7 @@ export function ExperimentalMap({
 					{
 						id: 'background',
 						type: 'background',
-						paint: { 'background-color': '#dfe6e0' }
+						paint: { 'background-color': '#233e45' }
 					}
 				]
 			},
@@ -82,8 +90,29 @@ export function ExperimentalMap({
 				customAttribution: 'NISAR · NASA/JPL-Caltech e ISRO · GMW 2020'
 			})
 		);
-		m.fitBounds(dataset.manifest.region.bbox, { padding: 28, duration: 0 });
+		m.fitBounds(dataset.manifest.region.bbox, {
+			padding:
+				embedded && window.innerWidth > 900
+					? { top: 80, bottom: 210, left: 30, right: 70 }
+					: { top: 80, bottom: 30, left: 30, right: 50 },
+			duration: 0
+		});
 		m.on('load', () => {
+			if (env.tilesUrl) {
+				m.addSource('reference', {
+					type: 'raster',
+					tiles: [env.tilesUrl],
+					tileSize: 256,
+					maxzoom: 14,
+					attribution: 'Referencia 2016: Sentinel-2 cloudless, EOX (CC BY 4.0)'
+				});
+				m.addLayer({
+					id: 'reference',
+					type: 'raster',
+					source: 'reference',
+					paint: { 'raster-opacity': 0.6 }
+				});
+			}
 			m.addSource('connectivity', {
 				type: 'vector',
 				url: `pmtiles://${assetUrl(dataset.manifest.capas.conectividad, dataset.manifestUrl)}`
@@ -113,7 +142,8 @@ export function ExperimentalMap({
 			});
 			setReady(true);
 		});
-		m.on('error', () => {
+		m.on('error', e => {
+			if ((e as { sourceId?: string }).sourceId === 'reference') return;
 			setError(
 				'No se pudo cargar una capa del mapa. Comprueba la conexión y vuelve a cargar la página.'
 			);
@@ -122,14 +152,42 @@ export function ExperimentalMap({
 		m.on('sourcedata', e => {
 			if (e.sourceId === 'acquisition' && e.isSourceLoaded) setLoading(false);
 		});
-		m.on('dataloading', () => setLoading(true));
+		m.on('dataloading', e => {
+			if (e.sourceId === 'acquisition' || e.sourceId === 'connectivity') setLoading(true);
+		});
 		m.on('idle', () => setLoading(false));
 		m.on('click', e => callback.current(e.lngLat.lng, e.lngLat.lat));
+		const keyboard = (e: KeyboardEvent) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				const center = m.getCenter();
+				callback.current(center.lng, center.lat);
+			}
+		};
+		m.getCanvas().addEventListener('keydown', keyboard);
+		let wide = window.innerWidth > 900;
+		const resize = new ResizeObserver(() => {
+			m.resize();
+			const nextWide = window.innerWidth > 900;
+			if (nextWide !== wide) {
+				wide = nextWide;
+				m.fitBounds(dataset.manifest.region.bbox, {
+					padding:
+						embedded && wide
+							? { top: 80, bottom: 210, left: 30, right: 70 }
+							: { top: 80, bottom: 30, left: 30, right: 50 },
+					duration: 0
+				});
+			}
+		});
+		resize.observe(host.current);
 		return () => {
+			resize.disconnect();
+			m.getCanvas().removeEventListener('keydown', keyboard);
 			m.remove();
 			map.current = null;
 		};
-	}, [dataset]);
+	}, [dataset, embedded]);
 	useEffect(() => {
 		const m = map.current;
 		if (!m || !ready) return;
@@ -212,13 +270,13 @@ export function ExperimentalMap({
 			<div
 				ref={host}
 				className="exp-map"
-				aria-label="Mapa de resultados. Usa las flechas para desplazarte y pulsa una celda para inspeccionarla."
+				aria-label="Mapa de resultados. Usá las flechas para desplazarte y Enter para inspeccionar el centro."
 			/>
 			<button
 				className="exp-fit"
 				onClick={() =>
 					map.current?.fitBounds(dataset.manifest.region.bbox, {
-						padding: 28,
+						padding: padding(),
 						duration: 0
 					})
 				}

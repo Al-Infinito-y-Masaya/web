@@ -44,7 +44,10 @@ export function mismaGeometria(a: Fecha, b: Fecha) {
 }
 
 /** A pass with heavy rain in the three previous days is not counted for high tide (RN-09). */
-export function excluidaPorLluvia(fecha: Fecha, manifiesto: Manifiesto) {
+export function excluidaPorLluvia(
+	fecha: Fecha,
+	manifiesto: { umbrales: { lluvia_max_mm?: number } }
+) {
 	const limite = manifiesto.umbrales.lluvia_max_mm;
 	return (
 		fecha.marea_nivel === 'alta' &&

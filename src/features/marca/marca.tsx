@@ -87,7 +87,7 @@ export function Logotipo({ className }: { className?: string }) {
 export function Isotipo({ className }: { className?: string }) {
 	return (
 		<img
-			src="/marca/isotipo.webp"
+			src={`${import.meta.env.BASE_URL}marca/isotipo.webp`}
 			alt=""
 			width={310}
 			height={310}
@@ -201,7 +201,7 @@ export function FranjaManglar({ className }: { className?: string }) {
 							/>
 						))}
 					<img
-						src="/marca/franja-manglar.webp"
+						src={`${import.meta.env.BASE_URL}marca/franja-manglar.webp`}
 						alt=""
 						draggable={false}
 						className="absolute inset-x-0 bottom-0 w-full max-w-none object-cover object-bottom select-none"
