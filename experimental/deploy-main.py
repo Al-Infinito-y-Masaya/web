@@ -27,6 +27,23 @@ def run(*args):
 def get(base, path):
     return urllib.request.urlopen(base + urllib.parse.quote(path, safe='/'), timeout=20)
 
+if sys.argv[1] == '--rollback':
+    backup = BASE / 'backups' / RELEASE
+    record = json.loads((backup / 'deployment.json').read_text())
+    if sha(CONFIG) != record['caddyAfter'] or (BASE / 'current').resolve() != BASE / 'releases' / RELEASE:
+        raise RuntimeError('A newer configuration or release exists; review before rollback')
+    run('caddy', 'validate', '--config', str(backup / 'Caddyfile'), '--adapter', 'caddyfile')
+    installed = CONFIG.read_bytes()
+    try:
+        CONFIG.write_bytes((backup / 'Caddyfile').read_bytes())
+        run('systemctl', 'reload', 'caddy')
+    except Exception:
+        CONFIG.write_bytes(installed)
+        run('systemctl', 'reload', 'caddy')
+        raise
+    print('Previous Caddy configuration restored. Release files and scientific data retained. DNS must be restored separately if needed.')
+    sys.exit(0)
+
 package = Path(sys.argv[1]).resolve()
 expected = sys.argv[2]
 metadata = json.loads((package / 'release.json').read_text())
