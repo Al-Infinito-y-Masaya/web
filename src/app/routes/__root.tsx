@@ -1,13 +1,13 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router';
-import { Compass } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 
+import { BarraSuperior } from '@/app/components/barra-superior';
 import { env } from '@/config/env';
-import { EmptyState } from '@/shared/ui/feedback/empty-state';
-import { ErrorState } from '@/shared/ui/feedback/error-state';
-import { Button } from '@/shared/ui/primitives/button';
-import { ThemeProvider } from '@/shared/ui/theme/theme-provider';
+import { SesionProvider } from '@/features/datos/sesion';
+import { IdiomaProvider, useIdioma } from '@/features/idioma/idioma';
+import { FiltrosCrayola } from '@/features/marca/marca';
+import { describeError } from '@/shared/models/app-error/describe-error';
 
 /** Available to every route's `beforeLoad` and `loader` as `context`. */
 export interface RouterContext {
@@ -21,38 +21,73 @@ const Devtools = env.isDev
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	component: RootLayout,
-	notFoundComponent: NotFound,
+	notFoundComponent: NoEncontrada,
+	// The root error screen replaces the whole layout, so it brings its own language provider.
 	errorComponent: ({ error, reset }) => (
-		<div className="mx-auto max-w-lg py-20">
-			<ErrorState error={error} onRetry={reset} />
-		</div>
+		<IdiomaProvider>
+			<ErrorDePantalla error={error} onReintentar={reset} />
+		</IdiomaProvider>
 	)
 });
 
 function RootLayout() {
 	return (
-		<ThemeProvider>
-			<Outlet />
-			<Suspense>
-				<Devtools />
-			</Suspense>
-		</ThemeProvider>
+		<IdiomaProvider>
+			<SesionProvider>
+				<FiltrosCrayola />
+				<div className="flex h-dvh flex-col">
+					<SaltarAlContenido />
+					<BarraSuperior />
+					<main id="contenido" className="relative min-h-0 flex-1 overflow-y-auto">
+						<Outlet />
+					</main>
+				</div>
+				<Suspense>
+					<Devtools />
+				</Suspense>
+			</SesionProvider>
+		</IdiomaProvider>
 	);
 }
 
-function NotFound() {
+function SaltarAlContenido() {
+	const { t } = useIdioma();
 	return (
-		<div className="mx-auto max-w-lg py-20">
-			<EmptyState
-				icon={Compass}
-				title="Page not found"
-				description="The page you are looking for does not exist or was moved."
-				actions={
-					<Button asChild>
-						<Link to="/">Go home</Link>
-					</Button>
-				}
-			/>
+		<a
+			href="#contenido"
+			className="boton boton-primario sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
+		>
+			{t.barra.saltar}
+		</a>
+	);
+}
+
+function NoEncontrada() {
+	const { t } = useIdioma();
+	return (
+		<div className="mx-auto flex max-w-lg flex-col items-center gap-5 px-6 py-24 text-center">
+			<h1 className="crayola text-4xl font-bold">{t.estado.paginaNoExiste}</h1>
+			<p className="text-lg">{t.estado.paginaNoExisteDetalle}</p>
+			<Link to="/" className="boton boton-primario">
+				{t.estado.irAlInicio}
+			</Link>
+		</div>
+	);
+}
+
+function ErrorDePantalla({ error, onReintentar }: { error: unknown; onReintentar: () => void }) {
+	const { t } = useIdioma();
+	return (
+		<div
+			role="alert"
+			className="mx-auto flex max-w-lg flex-col items-center gap-5 px-6 py-24 text-center"
+		>
+			<h1 className="text-3xl font-bold">{t.estado.error.otro.titulo}</h1>
+			<p className="text-lg">{t.estado.error.otro.detalle}</p>
+			<p className="etiqueta">{describeError(error, '')}</p>
+			<button type="button" className="boton boton-primario" onClick={onReintentar}>
+				{t.estado.reintentar}
+			</button>
 		</div>
 	);
 }
