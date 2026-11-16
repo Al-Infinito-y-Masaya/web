@@ -2,7 +2,26 @@ import fs from 'node:fs';
 import path from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+
+/**
+ * La precarga del catálogo usa la misma URL que el cliente: en GitHub Pages los datos viven en
+ * api.mangroove.earth (VITE_LABORATORIO_CATALOGO_URL); sin la variable se queda en el mismo origen.
+ */
+function catalogoPrecargado(): Plugin {
+	let catalogo = '';
+	return {
+		name: 'catalogo-precargado',
+		configResolved(config) {
+			catalogo = String(config.env.VITE_LABORATORIO_CATALOGO_URL ?? '');
+		},
+		transformIndexHtml(html) {
+			return catalogo
+				? html.replace('href="/archivos/laboratorio/vigente.json"', `href="${catalogo}"`)
+				: html;
+		}
+	};
+}
 
 // Separate entry: the production web app and its API contract are unchanged.
 export default defineConfig({
@@ -12,6 +31,7 @@ export default defineConfig({
 	plugins: [
 		react(),
 		tailwindcss(),
+		catalogoPrecargado(),
 		{
 			name: 'experimental-entry',
 			configureServer(server) {

@@ -36,7 +36,7 @@ jobs:
           VARS: ${{ toJSON(vars) }}
         run: jq -r 'to_entries[] | select(.key | startswith("VITE_")) | "\(.key)=\(.value)"' <<< "$VARS" > .env.production.local
 
-      - run: pnpm build
+      - run: pnpm build:pages
 
       - run: cp dist/index.html dist/404.html
 

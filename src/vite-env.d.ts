@@ -10,6 +10,7 @@ interface ImportMetaEnv {
 	readonly VITE_EXPLORADOR_EXPERIMENTAL?: string;
 	readonly VITE_API_URL?: string;
 	readonly VITE_DEBUG?: string;
+	readonly VITE_LABORATORIO_CATALOGO_URL?: string;
 }
 
 interface ImportMeta {

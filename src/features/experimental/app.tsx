@@ -7,7 +7,14 @@ import { Workspace } from './workspace';
 
 import './experimental.css';
 
-const catalogUrl = new URL('/archivos/laboratorio/vigente.json', window.location.origin).href;
+/**
+ * Catálogo de sitios del laboratorio. Sin variable se lee del mismo origen (despliegue en EC2);
+ * en GitHub Pages apunta a los archivos publicados en api.mangroove.earth.
+ */
+const catalogUrl = new URL(
+	import.meta.env.VITE_LABORATORIO_CATALOGO_URL || '/archivos/laboratorio/vigente.json',
+	window.location.origin
+).href;
 export function ExperimentalApp() {
 	const [sites, setSites] = useState<Site[]>([]);
 	const [dataset, setDataset] = useState<Dataset | null>(null);
