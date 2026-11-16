@@ -12,6 +12,7 @@
 		"dev": "vite",
 		"dev:experimental": "vite --config vite.experimental.config.ts",
 		"build:experimental": "vite build --config vite.experimental.config.ts",
+		"build:pages": "pnpm build && pnpm build:experimental && node scripts/laboratorio-pages.mjs",
 		"build": "vite build && tsc --noEmit",
 		"preview": "vite preview",
 		"typecheck": "tsc --noEmit",
