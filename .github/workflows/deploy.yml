@@ -1,0 +1,56 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+concurrency:
+  cancel-in-progress: false
+  group: pages
+
+permissions:
+  contents: read
+  id-token: write
+  pages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: write .env.production.local
+        env:
+          VARS: ${{ toJSON(vars) }}
+        run: jq -r 'to_entries[] | select(.key | startswith("VITE_")) | "\(.key)=\(.value)"' <<< "$VARS" > .env.production.local
+
+      - run: pnpm build
+
+      - run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v5
+        id: deployment
