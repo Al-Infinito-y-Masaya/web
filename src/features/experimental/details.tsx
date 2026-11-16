@@ -1,18 +1,13 @@
-import { percent, stateLabels, type Cell, type Dataset } from './data';
+import { percent, type Cell, type Dataset } from './data';
 import type { Layer } from './layers';
+import { useLab } from './textos';
 
-const number = (n: number | null, digits = 2) =>
-	n === null ? 'Sin dato' : n.toLocaleString('es-NI', { maximumFractionDigits: digits });
 export function Legend({ layer, dataset }: { layer: Layer; dataset: Dataset }) {
-	const classes = [
-		['IV', 'Vegetación inundada'],
-		['OW', 'Agua abierta'],
-		['NI', 'No inundado'],
-		['NC', 'No clasificado']
-	];
+	const { t } = useLab();
+	const classes = Object.entries(t.leyenda.clases);
 	if (layer === 'clases')
 		return (
-			<ul className="exp-legend" aria-label="Leyenda">
+			<ul className="exp-legend" aria-label={t.leyenda.aria}>
 				{classes.map(([k, label]) => (
 					<li key={k}>
 						<i
@@ -25,39 +20,31 @@ export function Legend({ layer, dataset }: { layer: Layer; dataset: Dataset }) {
 				))}
 			</ul>
 		);
-	if (layer === 'rgb')
-		return (
-			<p className="exp-caption">
-				Rojo: HH · verde: HV · azul: HH − HV. El color representa intensidad del radar, no
-				una fotografía.
-			</p>
-		);
+	if (layer === 'rgb') return <p className="exp-caption">{t.leyenda.rgb}</p>;
 	if (layer === 'estado')
 		return (
 			<ul className="exp-legend">
 				<li>
 					<i style={{ background: '#2f5f50' }} />
-					Conexión compatible
+					{t.leyenda.conexion}
 				</li>
 				<li>
 					<i style={{ background: '#bc9435' }} />
-					Baja frecuencia
+					{t.leyenda.baja}
 				</li>
 				<li>
 					<i style={{ background: '#3987e5' }} />
-					Persistente
+					{t.leyenda.persistente}
 				</li>
 				<li>
 					<i style={{ background: '#9a9893' }} />
-					Insuficiente
+					{t.leyenda.insuficiente}
 				</li>
 			</ul>
 		);
 	return (
 		<p className="exp-caption">
-			{layer === 'sens_db_m'
-				? 'Respuesta HH en dB/m: marrón ≤ −0,5 · papel 0 · verde ≥ 0,5. Gris: sin estimación. La intensidad del color no indica significancia estadística.'
-				: 'Frecuencia de inundación: papel 0 % · azul 100 %. Gris: sin estimación. Solo se muestran celdas de manglar.'}
+			{layer === 'sens_db_m' ? t.leyenda.sensibilidad : t.leyenda.frecuencia}
 		</p>
 	);
 }
@@ -70,71 +57,75 @@ export function Inspector({
 	dataset: Dataset;
 	selectedDate: string;
 }) {
+	const { t, numero } = useLab();
+	const number = (n: number | null, digits = 2) => numero(n, digits);
 	const metric = c.metricas;
 	const now = c.serie.find(p => p.fecha_id === selectedDate);
 	return (
 		<>
 			<p className="exp-coordinate">
-				{number(c.centroide[1], 5)}° N · {number(Math.abs(c.centroide[0]), 5)}° O
+				{number(c.centroide[1], 5)}° {t.inspector.norte} ·{' '}
+				{number(Math.abs(c.centroide[0]), 5)}° {t.inspector.oeste}
 			</p>
 			<p className="exp-cell-state">
 				{!c.en_mascara
-					? 'Fuera de la máscara de manglar'
+					? t.inspector.fueraMascara
 					: metric
-						? stateLabels[metric.estado]
-						: 'Sin métricas disponibles'}
+						? t.estados[metric.estado]
+						: t.inspector.sinMetricas}
 			</p>
 			{metric && (
 				<>
 					<dl className="exp-metrics">
 						<div>
-							<dt>Inundación · todas</dt>
-							<dd>{percent(metric.if)}</dd>
+							<dt>{t.inspector.inundacionTodas}</dt>
+							<dd>{percent(metric.if, t)}</dd>
 						</div>
 						<div>
-							<dt>En marea alta</dt>
-							<dd>{percent(metric.if_alta)}</dd>
+							<dt>{t.inspector.enAlta}</dt>
+							<dd>{percent(metric.if_alta, t)}</dd>
 						</div>
 						<div>
-							<dt>En marea baja</dt>
-							<dd>{percent(metric.if_baja)}</dd>
+							<dt>{t.inspector.enBaja}</dt>
+							<dd>{percent(metric.if_baja, t)}</dd>
 						</div>
 						<div>
-							<dt>Respuesta HH</dt>
+							<dt>{t.inspector.respuestaHh}</dt>
 							<dd>{number(metric.sens_db_m)} dB/m</dd>
 						</div>
 						<div>
-							<dt>p de respuesta HH</dt>
-							<dd>{metric.sens_p === 0 ? '< 0,001' : number(metric.sens_p, 3)}</dd>
+							<dt>{t.inspector.pRespuesta}</dt>
+							<dd>
+								{metric.sens_p === 0
+									? `< ${(0.001).toLocaleString(t.locale)}`
+									: number(metric.sens_p, 3)}
+							</dd>
 						</div>
 						<div>
-							<dt>Fechas alta / baja</dt>
+							<dt>{t.inspector.fechasAltaBaja}</dt>
 							<dd>
 								{metric.n_fechas_alta} / {metric.n_fechas_baja}
 							</dd>
 						</div>
 					</dl>
-					<p className="exp-caption">
-						{percent(metric.p_error)} de fechas cerca de un umbral. No es exactitud
-						validada. Los valores p por celda están redondeados.
-					</p>
+					<p className="exp-caption">{t.inspector.nota(percent(metric.p_error, t))}</p>
 				</>
 			)}
 			<p>
-				<strong>Fecha seleccionada:</strong> {now?.clase ?? 'Sin dato'} · HH{' '}
+				<strong>{t.inspector.fechaSeleccionada}</strong> {now?.clase ?? t.sinDato} · HH{' '}
 				{number(now?.hh_db ?? null)} dB
 			</p>
 			<Series cell={c} dataset={dataset} />
 			<details>
-				<summary>Ver las {c.serie.length} observaciones</summary>
+				<summary>{t.inspector.verObservaciones(c.serie.length)}</summary>
 				<div className="exp-series-table">
 					<table>
 						<thead>
 							<tr>
-								<th>Fecha / pista</th>
+								<th>{t.inspector.fecha}</th>
 								<th>HH dB</th>
 								<th>HV dB</th>
-								<th>Clase</th>
+								<th>{t.inspector.clase}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -145,7 +136,7 @@ export function Inspector({
 									</th>
 									<td>{number(p.hh_db)}</td>
 									<td>{number(p.hv_db)}</td>
-									<td>{p.clase ?? 'Sin dato'}</td>
+									<td>{p.clase ?? t.sinDato}</td>
 								</tr>
 							))}
 						</tbody>
@@ -154,16 +145,20 @@ export function Inspector({
 			</details>
 			{c.cambio && (
 				<p className="exp-change">
-					Cambio de copa candidato: {c.cambio.fecha_id.slice(0, 10)}, ΔHV{' '}
-					{number(c.cambio.delta_hv_db)} dB. Requiere verificación independiente.
+					{t.inspector.cambio(
+						c.cambio.fecha_id.slice(0, 10),
+						number(c.cambio.delta_hv_db)
+					)}
 				</p>
 			)}
 		</>
 	);
 }
 function Series({ cell, dataset }: { cell: Cell; dataset: Dataset }) {
+	const { t, numero } = useLab();
+	const number = (n: number | null, digits = 2) => numero(n, digits);
 	const values = cell.serie.map(p => p.hh_db).filter((v): v is number => v !== null);
-	if (!values.length) return <p>No hay señal HH válida para graficar.</p>;
+	if (!values.length) return <p>{t.inspector.sinSenal}</p>;
 	const low = Math.floor(Math.min(...values)) - 0.5,
 		high = Math.ceil(Math.max(...values)) + 0.5;
 	const x = (i: number) => 36 + (i * 264) / Math.max(1, cell.serie.length - 1),
@@ -171,12 +166,8 @@ function Series({ cell, dataset }: { cell: Cell; dataset: Dataset }) {
 	// Individual segments preserve gaps: null observations never become zero or a bridge.
 	return (
 		<figure className="exp-series">
-			<figcaption>Señal HH de la celda · dB</figcaption>
-			<svg
-				viewBox="0 0 320 154"
-				role="img"
-				aria-label="Evolución de HH en las veinte adquisiciones. Los valores exactos están en la tabla."
-			>
+			<figcaption>{t.inspector.serie}</figcaption>
+			<svg viewBox="0 0 320 154" role="img" aria-label={t.inspector.serieAria}>
 				{[low, (low + high) / 2, high].map(v => (
 					<g key={v}>
 						<line x1="36" x2="300" y1={y(v)} y2={y(v)} stroke="#cad0c0" />
@@ -201,7 +192,7 @@ function Series({ cell, dataset }: { cell: Cell; dataset: Dataset }) {
 							)}
 							<circle cx={x(i)} cy={y(p.hh_db)} r="3" fill="#0f7f9e">
 								<title>
-									{p.fecha_id}: {p.hh_db} dB; marea{' '}
+									{p.fecha_id}: {p.hh_db} dB; {t.inspector.marea}{' '}
 									{dataset.manifest.fechas[i]?.marea_m} m
 								</title>
 							</circle>

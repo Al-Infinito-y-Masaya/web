@@ -56,6 +56,13 @@
 .lab-share {
 	min-height: 40px;
 }
+.lab-idioma {
+	display: flex;
+	flex-shrink: 0;
+	padding: 2px;
+	border: 1.5px solid var(--manglar-verde);
+	border-radius: 999px;
+}
 .lab-stage {
 	flex: 1;
 	min-height: 0;

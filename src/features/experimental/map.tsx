@@ -11,6 +11,7 @@ import { env } from '@/config/env';
 import { assetUrl, type Cell, type Dataset } from './data';
 import { type Layer, type MapStatus } from './layers';
 import { RasterCache, type RasterStatus } from './raster-cache';
+import { useLab } from './textos';
 
 const protocol = new Protocol();
 const NOTICE_DELAY_MS = 300;
@@ -63,7 +64,8 @@ export function ExperimentalMap({
 	const currentKey = useRef(`${layer}:${date}`);
 	const [rasterStatus, setRasterStatus] = useState<RasterStatus | null>(null);
 	const [ready, setReady] = useState(false);
-	const [error, setError] = useState('');
+	const { t } = useLab();
+	const [error, setError] = useState<'' | 'pasada' | 'capa'>('');
 	const [loading, setLoading] = useState(true);
 	const [retry, setRetry] = useState(0);
 	const [slow, setSlow] = useState(false);
@@ -148,7 +150,7 @@ export function ExperimentalMap({
 			status => {
 				setRasterStatus(status);
 				setLoading(status.loading);
-				setError(status.error ? 'No se pudo cargar esta pasada.' : '');
+				setError(status.error ? 'pasada' : '');
 				statusCallback.current(status);
 			}
 		);
@@ -157,7 +159,7 @@ export function ExperimentalMap({
 		m.addControl(
 			new maplibregl.AttributionControl({
 				compact: false,
-				customAttribution: 'NISAR · NASA/JPL-Caltech e ISRO · GMW 2020'
+				customAttribution: 'NISAR · NASA/JPL-Caltech · ISRO · GMW 2020'
 			})
 		);
 		m.fitBounds(dataset.manifest.region.bbox, {
@@ -174,7 +176,7 @@ export function ExperimentalMap({
 					tiles: [env.tilesUrl],
 					tileSize: 256,
 					maxzoom: 14,
-					attribution: 'Referencia 2016: Sentinel-2 cloudless, EOX (CC BY 4.0)'
+					attribution: 'Sentinel-2 cloudless 2016 · EOX (CC BY 4.0)'
 				});
 				m.addLayer({
 					id: 'reference',
@@ -219,9 +221,7 @@ export function ExperimentalMap({
 				rasterCache.current?.fail(sourceId);
 				return;
 			}
-			setError(
-				'No se pudo cargar una capa del mapa. Comprueba la conexión y vuelve a cargar la página.'
-			);
+			setError('capa');
 			setLoading(false);
 			statusCallback.current({ key: currentKey.current, loading: false, error: true });
 		});
@@ -366,11 +366,7 @@ export function ExperimentalMap({
 	}, [selected, ready]);
 	return (
 		<div className="exp-map-wrap" aria-busy={loading}>
-			<div
-				ref={host}
-				className="exp-map"
-				aria-label="Mapa de resultados. Usá las flechas para desplazarte y Enter para inspeccionar el centro."
-			/>
+			<div ref={host} className="exp-map" aria-label={t.mapa.aria} />
 			<button
 				className="exp-fit"
 				onClick={() =>
@@ -380,11 +376,11 @@ export function ExperimentalMap({
 					})
 				}
 			>
-				Ver área completa
+				{t.mapa.verArea}
 			</button>
 			{error ? (
 				<div className="exp-map-message" role="alert">
-					{error}
+					{error === 'pasada' ? t.mapa.errorPasada : t.mapa.errorCapa}
 					<button
 						className="boton boton-contorno"
 						onClick={() => {
@@ -407,7 +403,7 @@ export function ExperimentalMap({
 							}
 						}}
 					>
-						Reintentar carga
+						{t.mapa.reintentar}
 					</button>
 				</div>
 			) : (
@@ -417,13 +413,9 @@ export function ExperimentalMap({
 						{(layer === 'rgb' || layer === 'clases') &&
 						rasterStatus?.displayed &&
 						rasterStatus.displayed !== `${layer}:${date}`
-							? 'Cargando la pasada elegida. El mapa aún muestra la anterior.'
-							: 'Preparando el mapa de esta pasada…'}
-						{slow && (
-							<span className="exp-load-hint">
-								La conexión está tardando. Podés seguir eligiendo fechas.
-							</span>
-						)}
+							? t.mapa.cargandoElegida
+							: t.mapa.preparandoPasada}
+						{slow && <span className="exp-load-hint">{t.mapa.lento}</span>}
 					</p>
 				)
 			)}
